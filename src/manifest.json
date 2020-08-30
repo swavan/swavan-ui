@@ -1,0 +1,36 @@
+{
+  "manifest_version": 2,
+  "name": "Swavan",
+  "homepage_url": "http://localhost:8080/",
+  "description": "Intercept and forward XHR request",
+  "default_locale": "en",
+  "permissions": [
+    "activeTab",
+    "<all_urls>",
+    "*://*/*",
+    "webRequest",
+    "webRequestBlocking"
+  ],
+  "icons": {
+    "16": "icons/SwaVan.png",
+    "48": "icons/SwaVan.png",
+    "128": "icons/SwaVan.png"
+  },
+  "background": {
+    "scripts": [
+      "js/background.js"
+    ],
+    "persistent": true
+  },
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_title": "Swavan",
+    "default_icon": {
+      "19": "icons/SwaVan.png",
+      "38": "icons/SwaVan.png"
+    }
+  },
+  "options_ui": {
+    "page": "options.html"
+  }
+}

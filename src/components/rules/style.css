@@ -1,0 +1,24 @@
+.custom-action {
+    padding: 5px 0px;
+}
+
+.custom-action > a {
+    padding-right: 10px;
+}
+
+.no-rule-found {
+    text-align: center;
+    font-size: medium;
+    font-weight: 600;
+    padding: 30px;
+}
+
+.add-new {
+    padding-bottom: 10px;
+    padding-right: 20px; 
+    width: 100%;
+}
+
+.add-new > :first-child {
+    float: right;
+}
