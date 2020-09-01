@@ -1,13 +1,11 @@
 {
   "manifest_version": 2,
-  "name": "Swavan",
+  "name": "SwaVan",
   "homepage_url": "http://localhost:8080/",
-  "description": "Intercept and forward XHR request",
+  "description": "SwaVan allow user to Intercept and forward XHR request to another endpoint, User can add forward URL or data into the application, All data are store locally.",
   "default_locale": "en",
   "permissions": [
-    "activeTab",
     "<all_urls>",
-    "*://*/*",
     "webRequest",
     "webRequestBlocking"
   ],

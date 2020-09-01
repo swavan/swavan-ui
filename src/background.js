@@ -32,10 +32,7 @@ const background = {
       }
     })
 
-    browser.webRequest.onBeforeRequest.addListener((req) => {
-      background.request['body'] = req.requestBody
-      handleRedirect(req.url, req.method)
-    },
+    browser.webRequest.onBeforeRequest.addListener(handleRedirect,
       { urls, types },
       ['blocking', 'requestBody', 'extraHeaders']
     );
@@ -46,7 +43,8 @@ const generateDataUrl = (dt) => {
   return `data:application/json,${JSON.stringify(dt)}`
 }
 
-const handleRedirect = (url, method) => {
+const handleRedirect = (req) => {
+  const { requestBody, url, method } = req;
   if ( method.toLowerCase() === HTTP_METHODS.OPTION )
     return
    const urlParams = new URLSearchParams(`?${url.split(/\?(.+)/)[1]}`);
@@ -63,9 +61,9 @@ const handleRedirect = (url, method) => {
  
    if (_rule) {
      let _body = Object
-     if (background.request.body) {
+     if (requestBody) {
        try {
-          _body = JSON.parse((decodeURIComponent(String.fromCharCode.apply(null,new Uint8Array(background.request.body.raw[0].bytes)))))
+          _body = JSON.parse((decodeURIComponent(String.fromCharCode.apply(null,new Uint8Array(requestBody.raw[0].bytes)))))
        } catch {
          return
        }
