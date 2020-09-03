@@ -1,7 +1,10 @@
 export const actions = {
+    URL_RELOAD : 'url_reload',
     RELOAD : 'reload',
     CONNECT: 'connect',
     DISCONNECT: 'disconnect',
+    STATUS_CHANGE: 'st',
+    ENABLE_REFRESH: 'ref'
 }
 
 
@@ -37,4 +40,19 @@ export const MAPPED_OPERATOR = {
     WILDCARD: 'w',
     PREFIX: 'p',
     SUFFIX: 's',
+}
+
+export const BROWSERS = {
+    CHROME: 'c',
+    FIREFOX: 'f',
+    EDGE: 'e',
+    SAFARI: 's',
+    UNKNOWN: 'u',
+    OPERA: 'o',
+    INTERNET_EXPLORE: 'i'
+}
+
+export const DATA_SOURCE_TYPES = {
+    REQUEST: 'q',
+    RESPONSE: 's'
 }

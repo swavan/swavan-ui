@@ -22,3 +22,12 @@
 .add-new > :first-child {
     float: right;
 }
+
+.search-container {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+}
+.search-container > :first-child {
+    margin-right: 5px;
+}

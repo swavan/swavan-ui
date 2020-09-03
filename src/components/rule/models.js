@@ -52,6 +52,7 @@ export const ResponseModel = {
     filter_by: "n",
     logic: "",
     filters: [],
+    headers: [],
     is_logic_enabled: true,
     is_validate:  function() {
         if (this.mark_for_deletion) {
@@ -75,4 +76,10 @@ export const FilterModel = {
     key: '',
     value: '',
     is_active: true
+}
+
+export const HeaderModel = {
+    type: '',
+    field: '',
+    value: ''
 }

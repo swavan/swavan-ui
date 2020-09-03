@@ -1,0 +1,12 @@
+<div>
+    <div class="status custom-card">
+        <b-form-checkbox switch v-model="isEnabled" @change="toggleSetting()" size="lg">
+            Swavan is <b>{{ isEnabled ? "Active" : "Inactive" }}</b>
+        </b-form-checkbox>
+    </div>
+    <div class="status custom-card">
+        <b-form-checkbox switch v-model="reload" @change="toggleSetting()" size="lg">
+            Reload on action is <b>{{ reload ? "Active" : "Inactive" }}</b>
+        </b-form-checkbox>
+    </div>
+</div>

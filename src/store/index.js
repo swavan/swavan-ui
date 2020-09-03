@@ -1,17 +1,31 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import db from '../database'
-// import router from '../router'
-// import db from '../database'
+import Vue from 'vue';
+import Vuex from 'vuex';
+import db from '../database';
+import api from '../Api';
+
+import { Browser } from '../utils';
+
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
     swavanRules: [],
-    toggleStatus : true
+    browserName: String,
+    urls: [],
+    settings: Object
   },
   mutations: {
+    setHostUrl(state, payload) {
+      state.urls = payload
+    },
+    setSettings(state, payload) {
+      console.log("setSettings", payload)
+      state.settings = { ...payload }
+    },
+    identifyBrowser(state) {
+      state.browserName = Browser.getBrowserName()
+    },
     setRules(state, payload){
       state.swavanRules.length = 0;
       state.swavanRules.push(...payload)
@@ -31,6 +45,13 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    async addSettings(state, payload) {
+      await api.addSettings(payload)
+    },
+    async updateSettings(state, payload) {
+      console.log("updateSettings: ",payload)
+      await api.updateSettings(payload)
+    },
     async saveRedirectRule(state, payload) {
       const rule_id = await db.rules.add({
         name: payload.name,
@@ -47,6 +68,7 @@ export default new Vuex.Store({
           data: res.data,
           http_method: res.http_method,
           filters: res.filters,
+          headers: res.headers,
           is_logic_enabled: res.is_logic_enabled
         })))
       })
@@ -96,6 +118,7 @@ export default new Vuex.Store({
             data: res.data,
             http_method: res.http_method,
             filters: res.filters,
+            headers: res.headers,
             logic: res.logic,
             is_logic_enabled: res.is_logic_enabled
           })));
@@ -109,6 +132,7 @@ export default new Vuex.Store({
               data: res.data,
               http_method: res.http_method,
               filters: res.filters,
+              headers: res.headers,
               is_logic_enabled: res.is_logic_enabled
             })));
         await db.responses.bulkDelete(payload.responses.filter((row) => row.mark_for_deletion).map((row) => row.id));
@@ -126,11 +150,34 @@ export default new Vuex.Store({
         .equals(rule_id)
         .delete();
       })
+    },
+    async loadSetting(state) {
+      const settings = await api.loadSettings()
+      if (settings && settings.length > 0)
+          state.commit("setSettings", settings[0])
+    },   
+    async loadHostUrl(state, search) {
+      const urls = await api.loadHostURL(search)
+      if (urls) {
+        state.commit("setHostUrl", urls)
+      }
+    },
+    async addHostUrl(state, url) {
+      await api.saveHostURL(url)
+    },
+    async deleteHostUrl(state, url) {
+      await api.deleteHostURL(url)
     }
   },
   modules: {
   },
   getters : {
+    hostUrls: (state) => {
+      return state.urls;
+    },
+    browser: (state) => {
+      return state.browserName;
+    },
     rules : (state) => {
       return state.swavanRules
     },
@@ -141,7 +188,13 @@ export default new Vuex.Store({
       return state.swavanRules.find(row => row.id === rule_id)
     },
     isActive: (state) => {
-      return state.toggleStatus
+      return state.settings && state.settings.isEnabled
     },
+    reloadActive: (state) => {
+      return state.settings && state.settings.reload
+    },
+    settings: (state) => {
+      return state.settings
+    }
   }
 })

@@ -1,102 +1,16 @@
-<template name="component-name">
-    <div>
-        <div style="padding: 0px 10px">
-
-         <!-- Search Box -->
-         <b-card-group deck >
-             <b-card border-variant="light">
-                <b-form-input
-                    list="my-list-id" 
-                    v-model="search"
-                    v-on:keyup.enter="searchRules"
-                    placeholder="Search Rules">
-                </b-form-input>
-             </b-card>
-         </b-card-group>
-
-         <!-- Add new rules  -->
-        <div v-if="rules.length > 0"  class="add-new">
-        </div>
-
-            <b-modal
-                id="modal-edit-rule"
-                scrollable
-                header-text-variant="light"
-                header-bg-variant="dark"
-                header-close-variant="danger"
-                hide-footer
-                v-model="modalShow"
-                :title=modelHeaderText>
-                <NewRules
-                    :enableDelete=enableDelete
-                    :rule_id=selected_rule_id
-                    v-on:saved=refreshRule
-                    v-on:removed=refreshRule
-                    />
-            </b-modal>
-
-        
-        <div v-if="rules.length < 1" class="no-rule-found">
-            No rules found
-        </div>
-        <!-- List of rules -->
-        <b-table
-            v-if="rules.length > 0"
-            sticky-header
-            :items="rules"
-            head-variant="light"
-            headVariant=dark
-            tableVariant=dark
-            :fields= "fields"
-            >
-            <template v-slot:cell(is_enabled)="data">
-                <b-form-checkbox
-                    switch
-                    v-model="data.item.is_enabled"
-                    style="text-align: right"
-                    @change="toggleStatus(data.item.id, $event)"
-                    size="lg">
-                </b-form-checkbox>
-            </template>
-        
-            <!-- Tilte and Descriptions -->
-            <template v-slot:cell(name)="data">
-                <div @click="data.toggleDetails" style="text-align: left">
-                    <!-- <b-button @click="data.toggleDetails" variant="dark"> -->
-                        <b-button variant="dark" @click="updateStatusInModal('edit-delete', data.item.id)">
-                            <b-icon icon="pencil"  variant="primary" aria-hidden="true"></b-icon> 
-                        </b-button>
-                        <strong v-b-tooltip :title=data.item.description>
-                            {{ data.item.name | toCamelCase }}
-                        </strong>
-                </div>
-            </template>
-
-            <!-- <template  v-slot:row-details="data" >
-                <Responses :rule_id="data.item.id"/>
-            </template> -->
-
-            <template v-slot:head(is_enabled)="data">
-                <div style="text-align: right">{{ data.label }}</div>
-            </template>
-
-        </b-table>
-        </div>
-    </div>
-
+<template name="component-name" src="./rules.html">
 </template>
-
+<style scoped src="./rules.css">
+</style>
 <script>
 
-import "./style.css"
 import NewRules from '@/components/rule'
-// import Responses from '@/components/responses'
-// import store from '../../store'
-
+import vueJsonEditor from 'vue-json-editor'
 export default {
     name: "Rules",
+    counter: 0,
     mounted() {},
-    components: { NewRules },
+    components: { NewRules, vueJsonEditor },
     data() {
         return {
             search : '',
@@ -105,12 +19,30 @@ export default {
             enableDelete: false,
             selected_rule_id: Number,
             currentResponses: [],
-            modalShow: false
+            modalShow: false,
+            showPasteModal: false,
+            raw: ''
         }
     },
     methods: {
         searchRules() {
             this.$store.dispatch("loadRedirectRule", this.search)
+        },
+        async copy(data, toaster, append = false) {
+            await this.loadResponses(data.id);
+            const rule = this.$store.getters.rule(data.id)
+            const stringified_rule = JSON.stringify(rule)
+            await navigator.clipboard.writeText(stringified_rule);
+            this.notifier(`!!! Copied`, `${data.name} rule copied`, "primary", append)
+        },
+        notifier(title, body, variant, appendToast, toaster='b-toaster-bottom-center') {
+            this.$bvToast.toast(body, {
+                title,
+                toaster,
+                variant,
+                appendToast,
+                autoHideDelay: "1000"
+            });
         },
         sendMessage(message = {}) {
             browser.runtime.sendMessage(message)
@@ -122,8 +54,24 @@ export default {
         async loadResponses(rule_id) {
             await this.$store.dispatch("loadResponses", rule_id)
         },
+        async createOnPaste() {
+            this.showPasteModal = true;
+        },
+        async createRule() {
+            try {
+                if ( this.raw ) {
+                const parsed = JSON.parse(JSON.stringify(this.raw));
+                await this.$store.dispatch("saveRedirectRule", parsed)
+                await this.refreshRule();
+                this.showPasteModal = false;
+                this.raw = "";
+                }
+            } catch (err) {
+                this.notifier("!!! Error", "Unable to parse the data", 'danger', true)
+                console.err(err);
+            }
+        },
         async updateStatusInModal(actionFor, rule_id) {
-            // this.modalShow = !this.modalShow
             if(actionFor === 'add') {
                 this.enableDelete = false
                 this.modelHeaderText = 'Add Rule'
@@ -139,7 +87,7 @@ export default {
         async refreshRule() {
             console.log("I am here to update the data")
             await this.$store.dispatch("loadRedirectRule");
-            this.modalShow = !this.modalShow;
+            this.modalShow = false;
             this.sendMessage({ "action": "reload" })
         } 
     },

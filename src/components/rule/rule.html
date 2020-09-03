@@ -1,0 +1,174 @@
+<div class="rule">
+    <b-form @submit="onSubmit" @reset="onReset" v-if="show">
+        <div class="eachRow">
+            <b-form-input id="swavan-rules-name" v-model.trim="form.name" required
+                placeholder="Enter Name of the Rules">
+            </b-form-input>
+        </div>
+        <div class="eachRow">
+            <b-form-textarea id="swavan-rules-description" v-model.trim="form.description"
+                placeholder="Enter rules descriptions" rows="3" max-rows="6">
+            </b-form-textarea>
+        </div>
+        <div class="eachRow">
+            <b-form-select id="input-source-type" v-model="form.source_type" :options="source_types" required>
+            </b-form-select>
+        </div>
+        <div class="eachRow">
+            <b-form-select id="input-operator" v-model="form.operator" :options="operators" required>
+            </b-form-select>
+        </div>
+        <div class="eachRow">
+            <b-form-input id="swavan-rules-name" v-model="form.source" required
+                placeholder="e.g http://www.example/api/">
+            </b-form-input>
+        </div>
+        <!-- {{ this.rule }} -->
+        <div class="eachRow" v-for="(response, responseIndex) in form.responses" v-bind:key="responseIndex">
+            <b-card v-if=!response.mark_for_deletion border-variant="light" no-body id="add-response-logic"
+                class="mb-1 custom-card">
+                <b-card-header class="p-1" role="tab" header-border-variant="dark" header-bg-variant="dark"
+                    text-variant="white">
+                    <b-button v-b-toggle="responseIndex+'-response'" variant="dark">Response logic</b-button>
+                    <b-button v-if="form.responses.length > 1" style="float: right"
+                        @click="removeResponses(responseIndex)" v-b-tooltip.hover title="Remove response logic"
+                        variant="dark">
+                        <b-icon icon="trash" scale="1" variant="danger"></b-icon>
+                    </b-button>
+                    <b-button style="float: right" v-b-toggle="responseIndex+'-response'" variant="dark">
+                        <span class="when-open">
+                            <b-icon icon="arrows-collapse" scale="1" variant="light"></b-icon>
+                        </span>
+                        <span class="when-closed">
+                            <b-icon icon="arrows-expand" scale="1" variant="light"></b-icon>
+                        </span>
+                    </b-button>
+
+                </b-card-header>
+                <b-collapse :id="responseIndex+'-response'" visible accordion="my-accordion" role="tabpanel">
+                    <b-card-body>
+                        <b-form-group>
+                            <b-form-select id="input-data-source-type" v-model="response.data_source_type"
+                                :options="data_source_types" required></b-form-select>
+                        </b-form-group>
+
+                        <div v-if="response.data_source_type === 'd'">
+                            <vue-json-editor v-model="response.data" :show-btns="false" :mode="'code'"
+                                :expandedOnStart="true" v-if="response.data_source_type === 'd'">
+                            </vue-json-editor>
+                        </div>
+
+                        <b-form-group>
+                            <b-form-input v-if="response.data_source_type === 'r'" id="swavan-rules-data"
+                                v-model="response.data" placeholder="Enter Redirect URL">
+                            </b-form-input>
+                        </b-form-group>
+
+                        <b-form-group>
+                            <b-form-select id="input-source-http-method" v-model="response.http_method"
+                                :options="http_methods"></b-form-select>
+                        </b-form-group>
+
+                        <!-- Header Section -->
+                        <div class="custom-tab-view">
+                                <b-tabs content-class="mt-3" align="left">
+                                    <b-tab class="custom-tab-body" title="Headers">
+                                        <div v-for="(header, headerIndex) in response.headers" v-bind:key="headerIndex">
+                                            <div class="custom-select-button eachRow">
+                                                <b-form-input class="singleLine" id="swavan-header-key"
+                                                    v-model.trim="header.field" required
+                                                    placeholder="Header Field">
+                                                </b-form-input>
+                                                <b-form-input class="singleLine" id="swavan-header-value"
+                                                    v-model.trim="header.value" required
+                                                    placeholder="Value">
+                                                </b-form-input>
+                                                <b-button size="sm" variant="dark" v-b-tooltip.hover
+                                                    title="Remove header"
+                                                    @click="removeHeader(responseIndex, headerIndex)" class="mb-1">
+                                                    <b-icon icon="trash" variant="danger"
+                                                        aria-label="Remove header logic"></b-icon>
+                                                </b-button>
+                                            </div>
+                                        </div>
+                                        <b-button size="md" variant="link" v-b-tooltip.hover
+                                            title="Add more filter logic" @click="addHeader(responseIndex)"
+                                            class="mb-1">
+                                           <b-icon icon="file-plus-fill" aria-label="Add more and logic"></b-icon>
+                                           Add {{ response.data_source_type === 'd' ? "Response" : "Request" }} header 
+                                        </b-button>
+                                    </b-tab>
+                                    <b-tab class="custom-tab-body" title="Filters">
+                                        <!-- Filter section -->
+                                        <div v-for="(filter, filterIndex) in response.filters" v-bind:key="filterIndex">
+                                            <div class="custom-select-button eachRow">
+                                                <b-form-select class="singleLine" id="input-source-filter-by-option"
+                                                    v-model="filter.filter_by" :options="filter_by_options">
+                                                </b-form-select>
+                                                <b-form-input class="singleLine" id="swavan-filter-key"
+                                                    v-model.trim="filter.key" required
+                                                    placeholder="Enter Name of the Rules">
+                                                </b-form-input>
+                                                <b-form-input class="singleLine" id="swavan-filter-value"
+                                                    v-model.trim="filter.value" required
+                                                    placeholder="Enter Filter Value">
+                                                </b-form-input>
+                                                <b-button size="sm" variant="dark" v-b-tooltip.hover
+                                                    title="Remove filter logic"
+                                                    @click="removeFilters(responseIndex, filterIndex)" class="mb-1">
+                                                    <b-icon icon="trash" variant="danger"
+                                                        aria-label="Remove filter logic"></b-icon>
+                                                </b-button>
+
+                                            </div>
+                                        </div>
+                                        <b-button size="md" variant="link" v-b-tooltip.hover
+                                            title="Add more filter logic" @click="addFilters(responseIndex)"
+                                            class="mb-1">
+                                           <b-icon icon="file-plus-fill" aria-label="Add more and logic"></b-icon>
+                                           Add more Filter 
+                                        </b-button>
+                                    </b-tab>
+                                </b-tabs>
+                        </div>
+
+                        <div>
+                            <b-form-checkbox switch v-model="response.is_logic_enabled" size="lg">
+                                {{ response.is_logic_enabled ? 'Enable' : 'Disable' }}
+                            </b-form-checkbox>
+                        </div>
+
+                    </b-card-body>
+                </b-collapse>
+            </b-card>
+        </div>
+        <div class="eachRow">
+            <b-button @click="addResponses()" v-b-tooltip.hover title="Add more response logic" variant="dark">
+                <b-icon icon="plus-circle-fill" scale="1" variant="light"></b-icon>
+                Add Response
+            </b-button>
+        </div>
+        <div class="eachRow">
+            <b-form-checkbox v-model="form.is_enabled">
+                Activate rule on create
+            </b-form-checkbox>
+        </div>
+        <div class="eachRow">
+            <div class="isa_error" v-for="(error, errorIndex) of errors" v-bind:key="errorIndex">
+                <b-icon icon="patch-exclamation-fll"></b-icon>
+                {{ error }}
+            </div>
+        </div>
+        <div class="eachRow">
+            <b-button size="md" variant="primary" type="submit" :disabled=!form.is_validate()>
+                <b-icon icon="download" aria-hidden="true"></b-icon>
+                Save
+            </b-button>
+            &nbsp;
+            <b-button v-if="enableDelete" size="sl" variant="danger" type="button" @click="deleteRule">
+                <b-icon icon="trash-fill" aria-hidden="true"></b-icon>
+                Delete
+            </b-button>
+        </div>
+    </b-form>
+</div>

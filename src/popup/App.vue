@@ -5,58 +5,41 @@
                 <img height="20px" width="30px" src="icons/SwaVan.png" alt="logo">
                Swavan
               </strong>
-
-              <b-modal
-                  id="modal-add-rule"
-                  scrollable
-                  header-text-variant="light"
-                  header-bg-variant="dark"
-                  header-close-variant="danger"
-                  hide-footer
-                  v-model="modalShow"
-                  title="Add Rule">
-                  <NewRule v-on:saved=refreshRule />
-              </b-modal>
                <b-dropdown
                   id="modal-add-rule-opener"
                   variant="secondary"
-                  no-caret
                   right
+                  no-caret
                   text="Dropdown Button"
                   class="m-md-2">
                   <template v-slot:button-content>
-                    <b-icon scale="1"  v-b-tooltip.hover title="Add New" variant="light"  icon="plus-circle-fill"></b-icon>
+                    <b-icon scale="1" variant="light"  icon="menu-down"></b-icon>
                   </template>
-                  <b-dropdown-item-button variant="dark" v-b-modal.modal-add-rule >Add Redirect Rule</b-dropdown-item-button>
+                  <b-dropdown-item-button variant="dark">
+                    <router-link to="/rules">Rules</router-link>
+                  </b-dropdown-item-button>
+                  <b-dropdown-item-button variant="dark">
+                    <router-link to="/host">Host Url</router-link>
+                  </b-dropdown-item-button>
+                  <b-dropdown-item-button variant="dark">
+                    <router-link to="/settings">Preferences</router-link>
+                  </b-dropdown-item-button>
+
                </b-dropdown>
           </div>
-          <Rules />
+          <router-view></router-view>
   </div>
 </template>
 <script>
 
-import Rules from '@/components/rules'
-import NewRule from '@/components/rule'
 
 export default {
-  name: 'App',
-  components: { Rules,  NewRule},
-  data() {
-    return {
-      modalShow: false
-    }
-  },
-  methods: {
-    async refreshRule() {
-      await this.$store.dispatch("loadRedirectRule");
-      this.modalShow = !this.modalShow;
-    }
-  }
+  name: 'App'
 }
 </script>
 
 <style>
-html {
+#App {
   min-width: 500px;
   height: 400px;
 }
