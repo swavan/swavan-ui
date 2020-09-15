@@ -196,7 +196,3 @@ export class Api {
 
 const api = new Api();
 export default api
-
-
-
-// {"id":15,"name":"apple","description":"asdasd","source_type":"u","operator":"c","source":"asdasd","is_enabled":true,"responses":[{"mark_for_deletion":true,"data_source_type":"d","data":{"id":"f6b5799f-0143-4d8f-9128-c450d419c474","key":"e500c5ff-bb8d-4e55-9cf7-5692d9492f74","link":"https://run.mocky.io/v3/f6b5799f-0143-4d8f-9128-c450d419c474","action_perform":"e"},"http_method":"al","filters":[],"is_logic_enabled":true,"cloud_store_permission":"n"},{"mark_for_deletion":false,"data_source_type":"d","data":{"id":"6e78c084-e2dc-47c0-9939-7db6e7d2e1bc","key":"b00f55ee-d167-4f42-8747-ca9d1a94764e","link":"https://run.mocky.io/v3/6e78c084-e2dc-47c0-9939-7db6e7d2e1bc"},"http_method":"al","filters":[],"is_logic_enabled":true,"cloud_store_permission":"a"}]}
