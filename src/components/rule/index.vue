@@ -3,7 +3,6 @@
 </template>
 
 <script>
-// import { mapGetters } from 'vuex'
 import vueJsonEditor from 'vue-json-editor'
 import './style.css'
 import options from './options'
