@@ -1,0 +1,81 @@
+<div>
+    <b-modal id="modal-paste-rule" scrollable header-text-variant="light" header-bg-variant="dark"
+    header-close-variant="danger" hide-footer v-model="showPasteModal" title="Paste Rule">
+    <vue-json-editor v-model="raw" :show-btns="false" :mode="'code'"
+        :expandedOnStart="true" >
+    </vue-json-editor>
+    <div class="custom-action">
+        <b-button @click="createRule" variant="primary">
+            <b-icon variant="light" icon="download"></b-icon>
+        </b-button>
+    </div>
+    </b-modal>
+    <div style="padding: 0px 10px">
+        <!-- Search Box -->
+        <b-card-group deck>
+            <b-card border-variant="light">
+                <div class="search-container">
+                    <b-form-input list="my-list-id" v-model="search" v-on:keyup.enter="searchRules"
+                        placeholder="Search Rules">
+                    </b-form-input>
+                    <b-button-group>
+                    <b-button @click="updateStatusInModal('add')" v-b-tooltip.hover title="Add New Rule"
+                        variant="light">
+                        <b-icon scale="1.5" variant="primary" icon="file-plus-fill"></b-icon>
+                    </b-button>
+                    <b-button scale="0.5" @click="createOnPaste()" v-b-tooltip.hover title="Paste and Create Rule"
+                        variant="light">
+                        <b-icon variant="primary" icon="files"></b-icon>
+                    </b-button>
+                    </b-button-group>
+                </div>
+            </b-card>
+        </b-card-group>
+
+        <!-- Add new rules  -->
+        <div v-if="rules.length > 0" class="add-new">
+        </div>
+
+        <b-modal v-b-modal.modal-xl  id="modal-edit-rule" scrollable header-text-variant="light" header-bg-variant="dark"
+            header-close-variant="danger" hide-footer v-model="modalShow" :title=modelHeaderText>
+            <NewRules :enableDelete=enableDelete :rule=selected_rule v-on:saved=refreshRule
+                v-on:removed=refreshRule />
+        </b-modal>
+
+
+        <div v-if="rules.length < 1" class="no-rule-found">
+            No rules found
+        </div>
+        <!-- List of rules -->
+        <b-table v-if="rules.length > 0" sticky-header :items="rules" head-variant="light" headVariant=dark
+            tableVariant=dark :fields="fields">
+            
+            <template v-slot:cell(is_enabled)="data">
+                <b-form-checkbox switch v-model="data.item.is_enabled" style="text-align: right"
+                    @change="toggleStatus(data.item, $event)" size="lg">
+                </b-form-checkbox>
+            </template>
+
+            <!-- Title and Descriptions -->
+            <!-- Is enabled -->
+            <template v-slot:cell(#)="data">
+                 <b-icon class="editor" @click="updateStatusInModal('edit-delete', data.item)" icon="pencil" variant="primary" aria-hidden="true"></b-icon>
+            </template>
+
+            <template v-slot:cell(name)="data">
+                <div style="text-align: left">
+                    <strong v-b-tooltip :title=data.item.description v-on:dblclick="copy(data.item, 'b-toaster-bottom-center', false)">
+                        {{ data.item.name | toCamelCase }}
+                    </strong>
+                </div>
+            </template>
+
+            <!-- Is enabled -->
+            <template v-slot:head(is_enabled)="data">
+                <div style="text-align: right">{{ data.label }}</div>
+            </template>
+
+        </b-table>
+    </div>
+
+</div>

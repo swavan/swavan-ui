@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "SwaVan",
-  "homepage_url": "http://localhost:8080/",
+  "homepage_url": "https://swavan.io/info",
   "description": "SwaVan allow user to Intercept and forward XHR request to another endpoint, User can add forward URL or data into the application, All data are store locally.",
   "default_locale": "en",
   "permissions": [
@@ -10,9 +10,12 @@
     "webRequestBlocking"
   ],
   "icons": {
-    "16": "icons/SwaVan.png",
-    "48": "icons/SwaVan.png",
-    "128": "icons/SwaVan.png"
+    "16": "icons/SwaVan16.png",
+    "32": "icons/SwaVan32.png",
+    "48": "icons/SwaVan48.png",
+    "64": "icons/SwaVan64.png",
+    "96": "icons/SwaVan96.png",
+    "128": "icons/SwaVan128.png"
   },
   "background": {
     "scripts": [
@@ -24,11 +27,12 @@
     "default_popup": "popup.html",
     "default_title": "Swavan",
     "default_icon": {
-      "19": "icons/SwaVan.png",
-      "38": "icons/SwaVan.png"
+      "16": "icons/SwaVan16.png",
+      "32": "icons/SwaVan32.png",
+      "48": "icons/SwaVan48.png",
+      "64": "icons/SwaVan64.png",
+      "96": "icons/SwaVan96.png",
+      "128": "icons/SwaVan128.png"
     }
-  },
-  "options_ui": {
-    "page": "options.html"
   }
 }

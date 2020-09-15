@@ -1,7 +1,11 @@
 export const actions = {
+    URL_RELOAD : 'url_reload',
     RELOAD : 'reload',
     CONNECT: 'connect',
     DISCONNECT: 'disconnect',
+    DISABLE_REFRESH: 'disable_refresh',
+    ENABLE_REFRESH: 'enable_refresh',
+    FULL_SCREEN_MODE: 'full_screen'
 }
 
 
@@ -37,4 +41,19 @@ export const MAPPED_OPERATOR = {
     WILDCARD: 'w',
     PREFIX: 'p',
     SUFFIX: 's',
+}
+
+export const BROWSERS = {
+    CHROME: 'c',
+    FIREFOX: 'f',
+    EDGE: 'e',
+    SAFARI: 's',
+    UNKNOWN: 'u',
+    OPERA: 'o',
+    INTERNET_EXPLORE: 'i'
+}
+
+export const DATA_SOURCE_TYPES = {
+    REQUEST: 'q',
+    RESPONSE: 's'
 }

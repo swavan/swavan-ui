@@ -1,136 +1,93 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import db from '../database'
-// import router from '../router'
-// import db from '../database'
+import Vue from 'vue';
+import Vuex from 'vuex';
+import db from '../database';
+import api from '../Api';
+
+import { Browser } from '../utils';
+
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
     swavanRules: [],
-    toggleStatus : true
+    browserName: String,
+    urls: [],
+    settings: {},
+    appData: {}
   },
   mutations: {
+    setAppInfo(state, payload) {
+      state.appData = payload
+    },
+    setHostUrl(state, payload) {
+      state.urls = payload
+    },
+    setSettings(state, payload) {
+      state.settings = { ...payload }
+    },
+    identifyBrowser(state) {
+      state.browserName = Browser.getBrowserName()
+    },
     setRules(state, payload){
       state.swavanRules.length = 0;
       state.swavanRules.push(...payload)
     },
-    setRule(state, payload){
-      state.swavanRules = payload
-    },
-    setResponses(state, payload) {
-      state.swavanRules.forEach((row) => {
-        if(row.id === payload.rule_id) {
-          row.responses = payload.responses
-          return
-        }
-      })
-      const rules = state.swavanRules
-      state.swavanRules = [...rules]
-    },
   },
   actions: {
-    async saveRedirectRule(state, payload) {
-      const rule_id = await db.rules.add({
-        name: payload.name,
-        description: payload.description,
-        source_type: payload.source_type,
-        operator: payload.operator,
-        source: payload.source,
-        is_enabled: payload.is_enabled
-      })
-      await db.transaction('rw', db.rules, db.responses, async function(){
-        await db.responses.bulkAdd(payload.responses.map(res => ({
-          rule_id,
-          data_source_type: res.data_source_type,
-          data: res.data,
-          http_method: res.http_method,
-          filters: res.filters,
-          is_logic_enabled: res.is_logic_enabled
-        })))
-      })
-
+    async loadAppInfo(state) {
+      const payload = await api.appInfo()
+      state.commit('setAppInfo', payload.data)
     },
-    async loadRedirectRule(state, search) {
-      const rules = await db.rules
-        .filter(rule => search ? rule.name.includes(search): rule)
-        .toArray();
-      
-      rules.map(rule => {
-          rule['responses'] = [];
-          return rule
-        })
-      state.commit('setRules', rules) 
+    async getResponseByID(state, rule_id) {
+      return await api.getResponses(rule_id)
+    },    
+    async saveSettings(state, payload) {
+      await api.saveSettings({...payload})
+    },
+    async saveRule(state, payload){
+      await api.saveRule({...payload});
+    },
+    async removeRule(state, payload){
+      await api.deleteRule({...payload});
+    },
+    async getRules(state, search){
+      const _rules = await api.loadRule(search);
+      state.commit('setRules', _rules)
     },
     async changeRuleStatus(state, changePayload) {
       await db.rules.update(changePayload.id, { is_enabled: changePayload.is_enabled })
     },
-    async loadResponses(state, rule_id) {
-      const responses = await db.responses
-        .filter((row) => row.rule_id === rule_id)
-        .toArray()
-      if (responses && responses.length > 0) {
-        state.commit("setResponses", { rule_id, responses })
+    async updateRules(state, payload) {
+      await api.saveRule({...payload})
+    },
+    async loadSetting(state) {
+      const settings = await api.loadSettings()
+      if (settings && settings.length > 0)
+          state.commit("setSettings", settings[0])
+    },   
+    async loadHostUrl(state, search) {
+      const urls = await api.loadHostURL(search)
+      if (urls) {
+        state.commit("setHostUrl", urls)
       }
     },
-    async updateRules(state, payload) {
-      await db.transaction('rw', db.rules, db.responses, async function(){
-        await db.rules.put({
-          id: payload.id,
-          name: payload.name,
-          description: payload.description,
-          source_type: payload.source_type,
-          operator: payload.operator,
-          source: payload.source,
-          is_enabled: payload.is_enabled
-        });
-
-        await db.responses.bulkPut(payload.responses
-          .filter(row => !row.mark_for_deletion)
-          .filter(row => !!row.id)
-          .map(res => ({
-            id: res.id,
-            rule_id: res.rule_id,
-            data_source_type: res.data_source_type,
-            data: res.data,
-            http_method: res.http_method,
-            filters: res.filters,
-            logic: res.logic,
-            is_logic_enabled: res.is_logic_enabled
-          })));
-
-          await db.responses.bulkAdd(payload.responses
-            .filter(row => !row.mark_for_deletion)
-            .filter(row => row.id == null)
-            .map(res => ({
-              rule_id: res.rule_id,
-              data_source_type: res.data_source_type,
-              data: res.data,
-              http_method: res.http_method,
-              filters: res.filters,
-              is_logic_enabled: res.is_logic_enabled
-            })));
-        await db.responses.bulkDelete(payload.responses.filter((row) => row.mark_for_deletion).map((row) => row.id));
-      });
+    async addHostUrl(state, url) {
+      await api.saveHostURL(url)
     },
-    async deleteRule(state, rule_id) {
-      await db.transaction('rw', db.rules, db.responses, async function(){
-        await db.rules
-        .where("id")
-        .equals(rule_id)
-        .delete();
-
-        await db.responses
-        .where("rule_id")
-        .equals(rule_id)
-        .delete();
-      })
+    async deleteHostUrl(state, url) {
+      await api.deleteHostURL(url)
     }
   },
   modules: {
   },
   getters : {
+    hostUrls: (state) => {
+      return state.urls;
+    },
+    browser: (state) => {
+      return state.browserName;
+    },
     rules : (state) => {
       return state.swavanRules
     },
@@ -141,7 +98,16 @@ export default new Vuex.Store({
       return state.swavanRules.find(row => row.id === rule_id)
     },
     isActive: (state) => {
-      return state.toggleStatus
+      return state.settings ? state.settings.isEnabled : true
     },
+    isReloadActive: (state) => () => {
+      return Object.keys(state.settings).length > 0 ? state.settings.reload : false
+    },
+    settings: (state) => () => {
+      return Object.keys(state.settings).length > 0 ? state.settings : { isEnabled: true,  reload: false }
+    },
+    info: (state) => {
+      return state.appData
+    }
   }
 })

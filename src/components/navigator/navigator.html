@@ -1,0 +1,34 @@
+<div>
+    <b-navbar fixed type="dark" variant="dark">
+        <b-navbar-brand href="#">
+            <img
+            @click="toggle"
+            v-bind:class="[settings.isEnabled ? 'isAppActive' : 'isAppInactive']"
+            height="30px"
+            width="30px"
+            src="icons/SwaVan64.png"
+            alt="logo">
+            SwaVan
+            <b-badge @click="toggle" pill v-bind:variant=statusColor>
+                {{ settings.isEnabled ? "ON" : "OFF" }}
+            </b-badge>
+        </b-navbar-brand>
+  
+        <b-navbar-nav class="ml-auto">
+            <b-nav-item-dropdown no-caret right>
+                <template v-slot:button-content>
+                    <b-icon icon="list" scale="1"    class="bg-primary"></b-icon>
+                  </template>
+                <b-dropdown-item to="/swavan-rules">Rules</b-dropdown-item>
+                <b-dropdown-item to="/swavan-host">Host URL</b-dropdown-item>
+                <b-dropdown-item to="/swavan-settings">Preferences</b-dropdown-item>
+                <b-dropdown-item to="/swavan-about">About</b-dropdown-item>
+            </b-nav-item-dropdown>
+            <!-- <b-nav-item>
+                    <b-icon @click="fullscreen" icon="arrows-fullscreen" scale="1" ></b-icon>
+            </b-nav-item> -->
+
+        </b-navbar-nav>
+      <!-- </b-collapse> -->
+    </b-navbar>
+  </div>
