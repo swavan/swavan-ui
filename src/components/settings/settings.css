@@ -1,6 +1,6 @@
 .status {
     margin: 10px;
-    padding: 20px;
+    padding: 10px;
     font-size: 90%;
     color: rgba(0,0,0,.65);
 }
@@ -16,3 +16,15 @@
     transition-property: color,background-color;
     will-change: color,background-color;
 }
+
+
+.mock-form {
+    margin: 10px;
+}
+
+.mock-header {
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+}
+

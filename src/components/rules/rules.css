@@ -31,3 +31,15 @@
 .search-container > :first-child {
     margin-right: 5px;
 }
+
+.text-wrap {
+    max-width: 300px;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.editor:hover {
+    color: white;
+    cursor: pointer;
+}

@@ -3,7 +3,7 @@
 <style scoped src="./rules.css">
 </style>
 <script>
-
+import { v4 as uuidv4 } from 'uuid';
 import NewRules from '@/components/rule'
 import vueJsonEditor from 'vue-json-editor'
 export default {
@@ -14,10 +14,10 @@ export default {
     data() {
         return {
             search : '',
-            fields : ["name", "is_enabled"],
+            fields : ["#","name", "is_enabled"],
             modelHeaderText: 'Add new rule',
             enableDelete: false,
-            selected_rule_id: Number,
+            selected_rule: {},
             currentResponses: [],
             modalShow: false,
             showPasteModal: false,
@@ -25,12 +25,16 @@ export default {
         }
     },
     methods: {
-        searchRules() {
-            this.$store.dispatch("loadRedirectRule", this.search)
-        },
+        async load () { this.$store.dispatch("getRules", this.search) },
+        async searchRules() { await this.load() },
         async copy(data, toaster, append = false) {
-            await this.loadResponses(data.id);
             const rule = this.$store.getters.rule(data.id)
+            rule.responses.forEach((row) => {
+                if (row.data && row.data.key && row.data.id && row.link) {
+                    row.data.key = uuidv4();
+                    row.data.action_perform = 'c';
+                }
+            })
             const stringified_rule = JSON.stringify(rule)
             await navigator.clipboard.writeText(stringified_rule);
             this.notifier(`!!! Copied`, `${data.name} rule copied`, "primary", append)
@@ -47,12 +51,10 @@ export default {
         sendMessage(message = {}) {
             browser.runtime.sendMessage(message)
         },
-        async toggleStatus(rule_id, is_enabled) {
-           await this.$store.dispatch("changeRuleStatus", { id: rule_id, is_enabled: is_enabled })
+        async toggleStatus(rule, is_enabled) {
+            rule.is_enabled = is_enabled;
+            await this.$store.dispatch("changeRuleStatus", rule)
             this.sendMessage({ "action": "reload" })
-        },
-        async loadResponses(rule_id) {
-            await this.$store.dispatch("loadResponses", rule_id)
         },
         async createOnPaste() {
             this.showPasteModal = true;
@@ -61,45 +63,44 @@ export default {
             try {
                 if ( this.raw ) {
                 const parsed = JSON.parse(JSON.stringify(this.raw));
-                await this.$store.dispatch("saveRedirectRule", parsed)
+                await this.$store.dispatch("saveRule", parsed)
                 await this.refreshRule();
                 this.showPasteModal = false;
                 this.raw = "";
                 }
             } catch (err) {
                 this.notifier("!!! Error", "Unable to parse the data", 'danger', true)
-                console.err(err);
             }
         },
-        async updateStatusInModal(actionFor, rule_id) {
+        async updateStatusInModal(actionFor, _rule) {
             if(actionFor === 'add') {
                 this.enableDelete = false
                 this.modelHeaderText = 'Add Rule'
-                this.selected_rule_id = null
+                this.selected_rule = {}
             }  else if(actionFor === 'edit-delete') {
                 this.enableDelete = true
                 this.modelHeaderText = 'Edit or Delete Rule'
-                this.selected_rule_id = rule_id
-                await this.$store.dispatch('loadResponses', rule_id)
+                this.selected_rule = _rule
             }
              this.modalShow = !this.modalShow
         },
         async refreshRule() {
-            console.log("I am here to update the data")
-            await this.$store.dispatch("loadRedirectRule");
+            await this.$store.dispatch("getRules");
             this.modalShow = false;
             this.sendMessage({ "action": "reload" })
         } 
     },
-    created () { return this.$store.dispatch("loadRedirectRule", this.search) },
+    async created () { await this.$store.dispatch("getRules", this.search) },
     computed: {
         rules() { return this.$store.getters.rules },
     },
     filters: {
-        toCamelCase : (str) => str.toLowerCase()
+        toCamelCase : (str) => str 
+            ? str.toLowerCase()
                 .split(' ')
                 .map((word) => word.replace(word[0], word[0].toUpperCase()))
-                .join(' '),
+                .join(' ')
+            : '',
     }
 
 }

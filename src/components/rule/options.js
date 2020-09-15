@@ -14,7 +14,7 @@ const OPERATORS = [
 
 const DATA_SOURCE_TYPES = [
     {value: "r", text: 'Redirect'},
-    {value: "d", text: 'Data'}
+    {value: "d", text: 'Mock Data'}
 ];
 
 const HTTP_METHODS = [

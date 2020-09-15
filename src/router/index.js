@@ -3,14 +3,16 @@ import VueRouter from "vue-router";
 import host from "../components/host";
 import rules from '../components/rules'
 import settings from '../components/settings';
+import about from '../components/about';
 
 Vue.use(VueRouter)
 
 const routes = [
   { path: "/", name: "/", component: rules },
-  { path: "/host", name: "host", component: host },
-  { path: "/rules", name: "rules", component: rules },
-  { path: "/settings", name: "settings", component: settings },
+  { path: "/swavan-host", name: "swavan-host", component: host },
+  { path: "/swavan-rules", name: "swavan-rules", component: rules },
+  { path: "/swavan-settings", name: "swavan-settings", component: settings },
+  { path: "/swavan-about", name: "swavan-about", component: about },
   { path: '*', redirect: '/' }
 ]
 

@@ -5,42 +5,25 @@
 <script>
 export default {
     name: "settings",
-    data() {
-        return {
-            id: null,
-            isEnabled: true,
-            reload: false
-        }
-    },
     async created() {
-       await this.$store.dispatch("loadSetting"); 
-    },
-    mounted(){
-        this.setProps();
+        await this.$store.dispatch("loadSetting");
     },
     methods: {
-        setProps() {
-            console.log("preferences: ", this.preferences)
-            // console.log("setProps: ",this.settings);
-            if (this.preferences && this.preferences.id) {
-                this.id = this.preferences.id
-                this.isEnabled = this.preferences.isEnabled
-                this.reload = this.preferences.reload
-            }
-        },
         async toggleSetting() {
-            const payload = { isEnabled: this.isEnabled, reload: this.reload }
-            if (this.id) {
-                payload["id"]=payload
+            this.preferences.reload = !this.preferences.reload;
+            await this.$store.dispatch("saveSettings", this.preferences);
+
+            const action = () => {
+                if ( this.preferences.reload === true ) { return "enable_refresh" }
+                else if ( this.preferences.reload === false ) { return "disable_refresh" }
             }
-            await this.$store.dispatch("updateSettings", payload);
-            await this.$store.dispatch("loadSetting");
-            browser.runtime.sendMessage({ "action": "sc" })
+
+           await browser.runtime.sendMessage({ "action": action() })
         }
     },
     computed: {
         preferences() {
-          return  this.$store.getters.settings
+          return  this.$store.getters.settings()
         }
     }
 }

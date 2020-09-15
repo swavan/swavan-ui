@@ -80,5 +80,31 @@
     will-change: color,background-color;
 }
 .custom-tab-body {
-    padding: 10px;
+    padding: 10px 10px 0px 10px;
 }
+
+.filter {
+    padding: 10px;
+    margin: 10px 0px;
+    /* background: #442c2c; */
+    border-radius: 5px;
+}
+.filter:last-child {
+    padding-bottom: 0px;
+}
+
+.notification {
+    padding: 10px 0px
+}
+
+.link-line {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: stretch;
+    align-content: center;
+}
+
+.link-line :first-child {
+    flex-grow: 8;
+}
+

@@ -12,4 +12,5 @@
     flex-wrap: nowrap;
     justify-content: space-between;
     vertical-align: bottom;
+    line-height: 40px;
 }

@@ -13,14 +13,17 @@ export default new Vuex.Store({
     swavanRules: [],
     browserName: String,
     urls: [],
-    settings: Object
+    settings: {},
+    appData: {}
   },
   mutations: {
+    setAppInfo(state, payload) {
+      state.appData = payload
+    },
     setHostUrl(state, payload) {
       state.urls = payload
     },
     setSettings(state, payload) {
-      console.log("setSettings", payload)
       state.settings = { ...payload }
     },
     identifyBrowser(state) {
@@ -30,126 +33,33 @@ export default new Vuex.Store({
       state.swavanRules.length = 0;
       state.swavanRules.push(...payload)
     },
-    setRule(state, payload){
-      state.swavanRules = payload
-    },
-    setResponses(state, payload) {
-      state.swavanRules.forEach((row) => {
-        if(row.id === payload.rule_id) {
-          row.responses = payload.responses
-          return
-        }
-      })
-      const rules = state.swavanRules
-      state.swavanRules = [...rules]
-    },
   },
   actions: {
-    async addSettings(state, payload) {
-      await api.addSettings(payload)
+    async loadAppInfo(state) {
+      const payload = await api.appInfo()
+      state.commit('setAppInfo', payload.data)
     },
-    async updateSettings(state, payload) {
-      console.log("updateSettings: ",payload)
-      await api.updateSettings(payload)
+    async getResponseByID(state, rule_id) {
+      return await api.getResponses(rule_id)
+    },    
+    async saveSettings(state, payload) {
+      await api.saveSettings({...payload})
     },
-    async saveRedirectRule(state, payload) {
-      const rule_id = await db.rules.add({
-        name: payload.name,
-        description: payload.description,
-        source_type: payload.source_type,
-        operator: payload.operator,
-        source: payload.source,
-        is_enabled: payload.is_enabled
-      })
-      await db.transaction('rw', db.rules, db.responses, async function(){
-        await db.responses.bulkAdd(payload.responses.map(res => ({
-          rule_id,
-          data_source_type: res.data_source_type,
-          data: res.data,
-          http_method: res.http_method,
-          filters: res.filters,
-          headers: res.headers,
-          is_logic_enabled: res.is_logic_enabled
-        })))
-      })
-
+    async saveRule(state, payload){
+      await api.saveRule({...payload});
     },
-    async loadRedirectRule(state, search) {
-      const rules = await db.rules
-        .filter(rule => search ? rule.name.includes(search): rule)
-        .toArray();
-      
-      rules.map(rule => {
-          rule['responses'] = [];
-          return rule
-        })
-      state.commit('setRules', rules) 
+    async removeRule(state, payload){
+      await api.deleteRule({...payload});
+    },
+    async getRules(state, search){
+      const _rules = await api.loadRule(search);
+      state.commit('setRules', _rules)
     },
     async changeRuleStatus(state, changePayload) {
       await db.rules.update(changePayload.id, { is_enabled: changePayload.is_enabled })
     },
-    async loadResponses(state, rule_id) {
-      const responses = await db.responses
-        .filter((row) => row.rule_id === rule_id)
-        .toArray()
-      if (responses && responses.length > 0) {
-        state.commit("setResponses", { rule_id, responses })
-      }
-    },
     async updateRules(state, payload) {
-      await db.transaction('rw', db.rules, db.responses, async function(){
-        await db.rules.put({
-          id: payload.id,
-          name: payload.name,
-          description: payload.description,
-          source_type: payload.source_type,
-          operator: payload.operator,
-          source: payload.source,
-          is_enabled: payload.is_enabled
-        });
-
-        await db.responses.bulkPut(payload.responses
-          .filter(row => !row.mark_for_deletion)
-          .filter(row => !!row.id)
-          .map(res => ({
-            id: res.id,
-            rule_id: res.rule_id,
-            data_source_type: res.data_source_type,
-            data: res.data,
-            http_method: res.http_method,
-            filters: res.filters,
-            headers: res.headers,
-            logic: res.logic,
-            is_logic_enabled: res.is_logic_enabled
-          })));
-
-          await db.responses.bulkAdd(payload.responses
-            .filter(row => !row.mark_for_deletion)
-            .filter(row => row.id == null)
-            .map(res => ({
-              rule_id: res.rule_id,
-              data_source_type: res.data_source_type,
-              data: res.data,
-              http_method: res.http_method,
-              filters: res.filters,
-              headers: res.headers,
-              is_logic_enabled: res.is_logic_enabled
-            })));
-        await db.responses.bulkDelete(payload.responses.filter((row) => row.mark_for_deletion).map((row) => row.id));
-      });
-    },
-    async deleteRule(state, rule_id) {
-      await db.transaction('rw', db.rules, db.responses, async function(){
-        await db.rules
-        .where("id")
-        .equals(rule_id)
-        .delete();
-
-        await db.responses
-        .where("rule_id")
-        .equals(rule_id)
-        .delete();
-      })
+      await api.saveRule({...payload})
     },
     async loadSetting(state) {
       const settings = await api.loadSettings()
@@ -188,13 +98,16 @@ export default new Vuex.Store({
       return state.swavanRules.find(row => row.id === rule_id)
     },
     isActive: (state) => {
-      return state.settings && state.settings.isEnabled
+      return state.settings ? state.settings.isEnabled : true
     },
-    reloadActive: (state) => {
-      return state.settings && state.settings.reload
+    isReloadActive: (state) => () => {
+      return Object.keys(state.settings).length > 0 ? state.settings.reload : false
     },
-    settings: (state) => {
-      return state.settings
+    settings: (state) => () => {
+      return Object.keys(state.settings).length > 0 ? state.settings : { isEnabled: true,  reload: false }
+    },
+    info: (state) => {
+      return state.appData
     }
   }
 })

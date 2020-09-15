@@ -3,8 +3,9 @@ export const actions = {
     RELOAD : 'reload',
     CONNECT: 'connect',
     DISCONNECT: 'disconnect',
-    STATUS_CHANGE: 'st',
-    ENABLE_REFRESH: 'ref'
+    DISABLE_REFRESH: 'disable_refresh',
+    ENABLE_REFRESH: 'enable_refresh',
+    FULL_SCREEN_MODE: 'full_screen'
 }
 
 

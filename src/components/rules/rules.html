@@ -36,9 +36,9 @@
         <div v-if="rules.length > 0" class="add-new">
         </div>
 
-        <b-modal id="modal-edit-rule" scrollable header-text-variant="light" header-bg-variant="dark"
+        <b-modal v-b-modal.modal-xl  id="modal-edit-rule" scrollable header-text-variant="light" header-bg-variant="dark"
             header-close-variant="danger" hide-footer v-model="modalShow" :title=modelHeaderText>
-            <NewRules :enableDelete=enableDelete :rule_id=selected_rule_id v-on:saved=refreshRule
+            <NewRules :enableDelete=enableDelete :rule=selected_rule v-on:saved=refreshRule
                 v-on:removed=refreshRule />
         </b-modal>
 
@@ -49,22 +49,23 @@
         <!-- List of rules -->
         <b-table v-if="rules.length > 0" sticky-header :items="rules" head-variant="light" headVariant=dark
             tableVariant=dark :fields="fields">
+            
             <template v-slot:cell(is_enabled)="data">
                 <b-form-checkbox switch v-model="data.item.is_enabled" style="text-align: right"
-                    @change="toggleStatus(data.item.id, $event)" size="lg">
+                    @change="toggleStatus(data.item, $event)" size="lg">
                 </b-form-checkbox>
             </template>
 
-            <!-- Tilte and Descriptions -->
-            <template v-slot:cell(name)="data">
-                <div @click="data.toggleDetails" style="text-align: left">
-                    
-                    <b-button variant="dark" @click="updateStatusInModal('edit-delete', data.item.id)">
-                        <b-icon icon="pencil" variant="primary" aria-hidden="true"></b-icon>
-                    </b-button>
+            <!-- Title and Descriptions -->
+            <!-- Is enabled -->
+            <template v-slot:cell(#)="data">
+                 <b-icon class="editor" @click="updateStatusInModal('edit-delete', data.item)" icon="pencil" variant="primary" aria-hidden="true"></b-icon>
+            </template>
 
-                    <strong v-b-tooltip :title=data.item.description>
-                        <b-button variant="dark" v-on:dblclick="copy(data.item, 'b-toaster-bottom-center', false)" class="mb-2">  {{ data.item.name | toCamelCase }}</b-button>
+            <template v-slot:cell(name)="data">
+                <div style="text-align: left">
+                    <strong v-b-tooltip :title=data.item.description v-on:dblclick="copy(data.item, 'b-toaster-bottom-center', false)">
+                        {{ data.item.name | toCamelCase }}
                     </strong>
                 </div>
             </template>
