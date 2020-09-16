@@ -41,15 +41,18 @@ export default {
             data_source_types: options.DATA_SOURCE_TYPES,
             http_methods : options.HTTP_METHODS,
             filter_by_options : options.FILTER_BY_OPTIONS,
-            show: true
+            show: true,
+            isSaving: false
         }
     },
     methods: {
         async onSubmit(evt) {
+            this.isSaving = true
             evt.preventDefault()
             const save_data = {...this.form};
             await this.$store.dispatch("saveRule", {...save_data})
             this.$emit("saved")
+            this.isSaving = false
         },
         onReset(evt) {
             evt.preventDefault()
@@ -67,6 +70,7 @@ export default {
         addResponses() {
             const responses = {...ResponseModel};
             responses.data = {...DataModel};
+            responses.filters = [];
             this.form.responses.push({...responses})
         },
         addHeader(responseIndex) {
@@ -86,9 +90,11 @@ export default {
             const responses = this.form.responses.filter((row) => !row.mark_for_deletion).length
             if ( responses > 1 ) {
                 this.$set(this.form.responses[responseIndex], "mark_for_deletion", true)
+                 this.$set(this.form.responses[responseIndex].data, 'action_perform', 'd')
             }
         },
         async load_mocked_response(responseIndex, response_data_id) {
+            this.$set(this.form.responses[responseIndex].data, "is_mock_loading", true)
             const mock = await this.$store.dispatch('getResponseByID', response_data_id)
             if ( mock.status === 200 ) {
                 Object.keys(mock.data).forEach((key) => {
@@ -104,11 +110,8 @@ export default {
                 })
                 this.$set(this.form.responses[responseIndex].data, 'action_perform', 'e')
             }
+            this.$set(this.form.responses[responseIndex].data, "is_mock_loading", false)
         },
-        unload_mocked_response(responseIndex) {
-            this.$set(this.form.responses[responseIndex].data, 'action_perform', 'd')
-        }
-
     },
     components: { vueJsonEditor },
     filters: {
