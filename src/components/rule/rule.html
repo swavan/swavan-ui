@@ -62,22 +62,22 @@
                                 show>
                                <a v-bind:href="response.data.link" target="blank">{{ response.data.link }}</a> 
                             </b-alert>
-
                             <b-button @click="load_mocked_response(responseIndex, response.data.id)" size="sm"
-                                v-if="response.data_source_type === 'd' && response.data && response.data.id && !response.data.content || response.data.action_perform === 'd'"
+                                v-if="response.data_source_type === 'd' && response.data && !response.data.is_mock_loading && response.data.id && !response.data.content "
                                 variant="link" type="button">
                                 <b-icon icon="pencil-square" aria-hidden="true"></b-icon>
                             </b-button>
-
-                            <b-button @click="unload_mocked_response(responseIndex)" size="sm"
-                                v-if="response.data_source_type === 'd' && response.data && response.data.id && response.data.content && response.data.action_perform !== 'd'"
+                            <b-icon v-if="response.data && response.data.is_mock_loading" icon="arrow-clockwise" animation="spin-pulse" font-scale="4"></b-icon>
+<!-- 
+                            <b-button @click=unload_mocked_response(responseIndex) size="sm"
+                                v-if="response.data_source_type === 'd' && response.data && response.data.id && response.data.content && response.data.action_perform !== 'h'"
                                 variant="light" type="button">
                                 <b-icon variant="danger" icon="x-circle-fill" aria-hidden="true"></b-icon>
-                            </b-button>
+                            </b-button> -->
                         </div>
 
                         <div class="custom-tab-view"
-                            v-if="response.data_source_type === 'd' && ( response.data && response.data.id ? response.data.content && response.data.action_perform !== 'd' : true ) ">
+                            v-if="response.data_source_type === 'd' && ( response.data && response.data.id ? (response.data.content && response.data.action_perform !== 'h') : true ) ">
                             <b-tabs content-class="mt-3" align="left">
                                 <b-tab class="custom-tab-body" title="Data">
                                     <div class="eachRow">
@@ -152,18 +152,18 @@
                                     <b-form-select class="singleLine" id="input-source-filter-by-option"
                                         v-model="filter.filter_by" :options="filter_by_options">
                                     </b-form-select>
-                                    <b-tooltip :target="'filter-key-index'+filterIndex"
+                                    <b-tooltip :target="'filter-key-index'+responseIndex+filterIndex"
                                         triggers="hover">
                                         {{ filter.key || "Add Filter Key" }}
                                     </b-tooltip>
-                                    <b-form-input class="singleLine" :id="'filter-key-index'+filterIndex"
+                                    <b-form-input class="singleLine" :id="'filter-key-index'+responseIndex+filterIndex"
                                         v-model.trim="filter.key" required placeholder="Enter Name of the Rules">
                                     </b-form-input>
-                                    <b-tooltip  :target="'filter-value-index'+filterIndex"
+                                    <b-tooltip  :target="'filter-value-index'+responseIndex+filterIndex"
                                         triggers="hover">
                                         {{ filter.value || "Add Filter value" }}
                                     </b-tooltip>
-                                    <b-form-input class="singleLine" :id="'filter-value-index'+filterIndex"
+                                    <b-form-input class="singleLine" :id="'filter-value-index'+responseIndex+filterIndex"
                                         v-model.trim="filter.value" required placeholder="Enter Filter Value">
                                     </b-form-input>
                                     <b-button size="sm" variant="light" v-b-tooltip.hover title="Remove filter logic"
@@ -202,7 +202,8 @@
             </b-form-checkbox>
         </div>
         <div class="eachRow">
-            <b-button size="md" :disabled=!isFormValid variant="primary" type="submit">
+            <b-icon v-if="isSaving" icon="arrow-clockwise" animation="spin-pulse" font-scale="4"></b-icon>
+            <b-button v-if="!isSaving" size="md" :disabled=!isFormValid variant="primary" type="submit">
                 <b-icon icon="download" aria-hidden="true"></b-icon>
                 Save
             </b-button>

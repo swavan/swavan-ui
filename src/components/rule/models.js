@@ -42,7 +42,8 @@ export const DataModel = {
     status: 200,
     contentType: "application/json",
     headers: [],
-    action_perform: 'a'
+    action_perform: 'a',
+    is_mock_loading: false
 }
 
 export const isValid = (_rule) => {
