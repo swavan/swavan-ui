@@ -67,9 +67,8 @@ export default {
                 this.show = true
             })
         },
-        async deleteRule() {
-            await this.$store.dispatch('removeRule', {...this.form})
-            this.$emit("removed") 
+        async cancelRule() {
+            this.$emit("close") 
         },
         addResponses() {
             const responses = {...ResponseModel};

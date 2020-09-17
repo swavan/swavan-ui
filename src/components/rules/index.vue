@@ -15,7 +15,6 @@ export default {
             search : '',
             fields : ["#","name", "is_enabled"],
             modelHeaderText: 'Add new rule',
-            enableDelete: false,
             selected_rule: {},
             currentResponses: [],
             modalShow: false,
@@ -78,12 +77,10 @@ export default {
         },
         async updateStatusInModal(actionFor, _rule) {
             if(actionFor === 'add') {
-                this.enableDelete = false
                 this.modelHeaderText = 'Add Rule'
                 this.selected_rule = {}
-            }  else if(actionFor === 'edit-delete') {
-                this.enableDelete = true
-                this.modelHeaderText = 'Edit or Delete Rule'
+            }  else if(actionFor === 'edit') {
+                this.modelHeaderText = 'Edit Rule'
                 this.selected_rule = _rule
             }
              this.modalShow = !this.modalShow

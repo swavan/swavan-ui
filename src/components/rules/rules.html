@@ -44,8 +44,8 @@
 
         <b-modal v-b-modal.modal-xl  id="modal-edit-rule" scrollable header-text-variant="light" header-bg-variant="dark"
             header-close-variant="danger" hide-footer v-model="modalShow" :title=modelHeaderText>
-            <NewRules :enableDelete=enableDelete :rule=selected_rule v-on:saved=refreshRule
-                v-on:removed=refreshRule />
+            <NewRules :rule=selected_rule v-on:saved=refreshRule
+                v-on:close="()=> modalShow = false"  />
         </b-modal>
 
 
@@ -69,7 +69,7 @@
                     <template v-slot:button-content>
                         <b-icon icon="three-dots-vertical"></b-icon>
                     </template>
-                    <b-dropdown-item variant="dark" size="sm"   @click="updateStatusInModal('edit-delete', data.item)" >
+                    <b-dropdown-item variant="dark" size="sm"   @click="updateStatusInModal('edit', data.item)" >
                         <b-icon class="editor" icon="pencil" variant="primary" aria-hidden="true">
                         </b-icon>
                         <span> Edit </span>
