@@ -258,7 +258,7 @@ export default {
     },
     data() {
         return {
-            form: {...RuleModel},
+            form: {...JSON.parse(JSON.stringify(RuleModel))},
             source_types: SOURCE_TYPES_OPTION,
             operators : OPERATORS,
             data_source_types: DATA_SOURCE_TYPES_OPTION,
@@ -279,6 +279,9 @@ export default {
                 }
             })
             await this.$store.dispatch("saveRule", {...save_data})
+            this.form.name = ""
+            this.form.description = ""
+
             this.$emit("saved")
             this.isSaving = false
         },

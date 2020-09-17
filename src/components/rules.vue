@@ -1,6 +1,6 @@
 <template name="component-name">
 <div>
-    <b-modal id="modal-paste-rule" scrollable header-text-variant="light" header-bg-variant="dark"
+    <b-modal :static="true" :lazy="true" id="modal-paste-rule" scrollable header-text-variant="light" header-bg-variant="dark"
     header-close-variant="danger" hide-footer v-model="showPasteModal" title="Paste Rule">
     <b-form-textarea
         class="mock-editor"

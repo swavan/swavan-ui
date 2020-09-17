@@ -46,8 +46,8 @@
         You can add redirect URL or you can mock data within the app.
     </div>
     <div class="me">
-        You can find me <a target="blank" href="https://www.linkedin.com/in/biplabpokhrel007/">Here</a> and
-        <a target="blank" href="https://twitter.com/BiplabPokhrel2">Here</a>
+        You can find me <a target="blank" href="https://www.linkedin.com/in/biplabpokhrel007/">biplabpokhrel007</a> and
+        <a target="blank" href="https://twitter.com/BiplabPokhrel2">BiplabPokhrel2</a>
     </div>
 
     <div class="thanks">
