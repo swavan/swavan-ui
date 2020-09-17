@@ -5,7 +5,6 @@ import api from '../Api';
 
 import { Browser } from '../utils';
 
-
 Vue.use(Vuex)
 
 export default new Vuex.Store({
