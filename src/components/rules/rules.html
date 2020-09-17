@@ -1,11 +1,17 @@
 <div>
     <b-modal id="modal-paste-rule" scrollable header-text-variant="light" header-bg-variant="dark"
     header-close-variant="danger" hide-footer v-model="showPasteModal" title="Paste Rule">
-    <vue-json-editor v-model="raw" :show-btns="false" :mode="'code'"
-        :expandedOnStart="true" >
-    </vue-json-editor>
+    <b-form-textarea
+        class="mock-editor"
+        id="mock-data"
+        :required=true
+        v-model="raw"
+        :state="raw.length >= 1"
+        placeholder="Enter mock data here"
+        rows="5">
+    </b-form-textarea>
     <div class="custom-action">
-        <b-button @click="createRule" variant="primary">
+        <b-button @click="createRule" :disabled=!raw.length variant="primary">
             <b-icon variant="light" icon="download"></b-icon>
         </b-button>
     </div>
@@ -59,7 +65,21 @@
             <!-- Title and Descriptions -->
             <!-- Is enabled -->
             <template v-slot:cell(#)="data">
-                 <b-icon class="editor" @click="updateStatusInModal('edit-delete', data.item)" icon="pencil" variant="primary" aria-hidden="true"></b-icon>
+                <b-dropdown size="sm" offset="25" right no-caret variant="link">
+                    <template v-slot:button-content>
+                        <b-icon icon="three-dots-vertical"></b-icon>
+                    </template>
+                    <b-dropdown-item variant="dark" size="sm"   @click="updateStatusInModal('edit-delete', data.item)" >
+                        <b-icon class="editor" icon="pencil" variant="primary" aria-hidden="true">
+                        </b-icon>
+                        <span> Edit </span>
+                    </b-dropdown-item>
+                    <b-dropdown-divider></b-dropdown-divider>
+                    <b-dropdown-item variant="dark"  @click="deleteRule(data.item)" size="sm" >
+                        <b-icon class="editor" icon="trash" variant="primary" aria-hidden="true"></b-icon>
+                        <span> Delete </span>
+                    </b-dropdown-item>
+                </b-dropdown>
             </template>
 
             <template v-slot:cell(name)="data">

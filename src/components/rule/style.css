@@ -27,41 +27,37 @@
 .isa_info, .isa_success, .isa_warning, .isa_error {
     margin: 10px 0px;
     padding:12px;
-    /* border-radius:.5em; */
-    /* border: 1px solid; */
-    /* box-shadow:1px 1px 3px #888; */
-    }
-    .isa_info {
-        color: #00529B;
-        background-color: #BDE5F8;
-    }
-    .isa_success {
-        color: #4F8A10;
-        background-color: #DFF2BF;
-    }
-    .isa_warning {
-        color: #9F6000;
-        background-color: #FEEFB3;
-    }
-    .isa_error {
-        color: #D8000C;
-        background-color: #FFD2D2;
-    }
-    /* .isa_info i, .isa_success i, .isa_warning i, .isa_error i {
-        margin:10px 22px;
-        font-size:2em;
-        vertical-align:middle;
-    } */
+}
+
+.isa_info {
+    color: #00529B;
+    background-color: #BDE5F8;
+}
+    
+.isa_success {
+    color: #4F8A10;
+    background-color: #DFF2BF;
+}
+
+.isa_warning {
+    color: #9F6000;
+    background-color: #FEEFB3;
+}
+
+.isa_error {
+    color: #D8000C;
+    background-color: #FFD2D2;
+}
 
 .custom-select-button {
     display: flex;
-    flex-flow: row nowrap;
-    align-items: center;
-    align-content: space-between;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-wrap: nowrap;
 }
 
-.custom-select-button > :last-child {
-    flex-grow: 1;
+.custom-select-button > * {
+    width: 120px;
 }
 
 .singleLine {
@@ -72,7 +68,6 @@
     background: rgb(221, 220, 220, 0.25);
     margin-bottom: 10px;
     box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
-    position: relative;
     z-index: 1;
     border-radius: 0px;
     transition: .3s cubic-bezier(.4,0,.2,1);
@@ -108,3 +103,11 @@
     flex-grow: 8;
 }
 
+
+.mock-editor {
+    background: rgb(32, 23, 23);
+    color: white;
+    font-weight: 300;
+    font-size: medium;
+    margin-bottom: 10px;
+}

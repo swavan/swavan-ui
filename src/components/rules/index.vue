@@ -5,12 +5,11 @@
 <script>
 import { v4 as uuidv4 } from 'uuid';
 import NewRules from '@/components/rule'
-import vueJsonEditor from 'vue-json-editor'
 export default {
     name: "Rules",
     counter: 0,
     mounted() {},
-    components: { NewRules, vueJsonEditor },
+    components: { NewRules },
     data() {
         return {
             search : '',
@@ -30,9 +29,9 @@ export default {
         async copy(data, toaster, append = false) {
             const rule = this.$store.getters.rule(data.id)
             rule.responses.forEach((row) => {
-                if (row.data && row.data.key && row.data.id && row.link) {
-                    row.data.key = uuidv4();
-                    row.data.action_perform = 'c';
+                if (row.data) {
+                    row.data['key'] = uuidv4();
+                    row.data['action_perform'] = 'c';
                 }
             })
             const stringified_rule = JSON.stringify(rule)
@@ -59,17 +58,22 @@ export default {
         async createOnPaste() {
             this.showPasteModal = true;
         },
+        async deleteRule(_rule) {
+            await this.$store.dispatch('removeRule', {..._rule})
+            await this.$store.dispatch("getRules");
+            this.sendMessage({ "action": "reload" })
+        },
         async createRule() {
             try {
                 if ( this.raw ) {
-                const parsed = JSON.parse(JSON.stringify(this.raw));
+                const parsed = JSON.parse(this.raw);
                 await this.$store.dispatch("saveRule", parsed)
                 await this.refreshRule();
                 this.showPasteModal = false;
                 this.raw = "";
                 }
             } catch (err) {
-                this.notifier("!!! Error", "Unable to parse the data", 'danger', true)
+                this.notifier("!!! Error", "Unable to save the data", 'danger', true)
             }
         },
         async updateStatusInModal(actionFor, _rule) {

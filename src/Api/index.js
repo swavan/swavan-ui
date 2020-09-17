@@ -10,7 +10,7 @@ export class Api {
         return {
             id: response.data.id,
             status: response.data.status || 200,
-            content: JSON.stringify(response.data.content),
+            content: response.data.content,
             contentType: response.data.contentType,
             key: response.data.key,
             headers: response.data.headers || []
@@ -31,14 +31,6 @@ export class Api {
                     const key = row.data.key
                     const id = row.data.id
                     const existingMock = mapMocks[id] || {};
-                    if(existingMock && existingMock.content) {
-                        const data =  existingMock.content
-                        try {
-                            existingMock.content = JSON.parse(data)
-                        } catch {
-                            existingMock.content = data;
-                        }
-                    }
                     row.data = { key, ...existingMock }
                 }
                 return row

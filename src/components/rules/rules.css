@@ -39,7 +39,10 @@
     text-overflow: ellipsis;
 }
 
-.editor:hover {
+.mock-editor {
+    background: rgb(32, 23, 23);
     color: white;
-    cursor: pointer;
+    font-weight: 300;
+    font-size: medium;
+    margin-bottom: 10px;
 }
