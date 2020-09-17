@@ -1,6 +1,6 @@
 {
   "name": "swavan",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service build --mode development --watch",
@@ -15,7 +15,6 @@
     "uuid": "^8.3.0",
     "vee-validate": "^3.3.9",
     "vue": "^2.6.11",
-    "vue-json-editor": "^1.4.2",
     "vue-router": "^3.4.3",
     "vuex": "^3.5.1",
     "vuex-map-fields": "^1.4.0"

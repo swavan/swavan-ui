@@ -3,7 +3,6 @@
 </template>
 
 <script>
-import vueJsonEditor from 'vue-json-editor'
 import './style.css'
 import options from './options'
 import { RuleModel, ResponseModel, FilterModel, HeaderModel, isValid, DataModel } from './models';
@@ -50,6 +49,11 @@ export default {
             this.isSaving = true
             evt.preventDefault()
             const save_data = {...this.form};
+            save_data.responses.forEach((row) => {
+                if(row.data && row.data.content && !row.data.action_perform) {
+                    row.data.action_perform = 'a';
+                }
+            })
             await this.$store.dispatch("saveRule", {...save_data})
             this.$emit("saved")
             this.isSaving = false
@@ -63,9 +67,8 @@ export default {
                 this.show = true
             })
         },
-        async deleteRule() {
-            await this.$store.dispatch('removeRule', {...this.form})
-            this.$emit("removed") 
+        async cancelRule() {
+            this.$emit("close") 
         },
         addResponses() {
             const responses = {...ResponseModel};
@@ -90,7 +93,7 @@ export default {
             const responses = this.form.responses.filter((row) => !row.mark_for_deletion).length
             if ( responses > 1 ) {
                 this.$set(this.form.responses[responseIndex], "mark_for_deletion", true)
-                 this.$set(this.form.responses[responseIndex].data, 'action_perform', 'd')
+                this.$set(this.form.responses[responseIndex].data, 'action_perform', 'd')
             }
         },
         async load_mocked_response(responseIndex, response_data_id) {
@@ -101,7 +104,7 @@ export default {
                     if(key === "content") {
                         const content = mock.data[key];
                         try {
-                            mock.data[key] = JSON.parse(content)
+                            mock.data[key] = content
                         } catch {
                             mock.data[key] = content
                         }
@@ -113,7 +116,6 @@ export default {
             this.$set(this.form.responses[responseIndex].data, "is_mock_loading", false)
         },
     },
-    components: { vueJsonEditor },
     filters: {
         toCamelCase(str) { return str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase()) },
         accordianIdMaker(prefix, index) { return `${prefix}-${index}` },
