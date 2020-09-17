@@ -6,7 +6,7 @@
 </template>
 <script>
 
-import navigator from '../components/navigator'
+import navigator from '../components/navigator.vue'
 export default {
   name: 'App',
   components: { navigator },

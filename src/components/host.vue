@@ -1,3 +1,4 @@
+<template>
 <div class="container">
     <b-popover target="host_input_group" triggers="hover" placement="top">
         <template v-slot:title>Why Host URL</template>
@@ -34,3 +35,56 @@
             </b-list-group>
           </div>
 </div>
+</template>
+<style scoped >
+.container {
+    padding: 10px;
+}
+
+.message {
+    font-size: small;
+    font-weight: 600;
+}
+
+.oneRow {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    vertical-align: bottom;
+    line-height: 40px;
+}
+</style>
+
+<script>
+export default {
+    name: "Host",
+    mounted() {
+        this.$store.dispatch('loadHostUrl')
+    },
+    data() {
+        return {
+            url: "",
+        }
+    },
+    methods: {
+        sendMessage(message = {}) {
+            browser.runtime.sendMessage(message)
+        },
+        async addHost() {
+            if(this.url.trim()) {
+                await this.$store.dispatch('addHostUrl', this.url);
+                await this.$store.dispatch('loadHostUrl');
+                this.sendMessage({ "action": "url_reload" })
+            }
+        },
+        async deleteHost(id) {
+            await this.$store.dispatch('deleteHostUrl', id)
+            await this.$store.dispatch('loadHostUrl');
+            this.sendMessage({ "action": "url_reload" })
+        }
+    },
+    computed: {
+        urls() { return this.$store.getters.hostUrls }
+    }
+}
+</script>
