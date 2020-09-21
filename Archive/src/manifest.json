@@ -1,0 +1,38 @@
+{
+  "manifest_version": 2,
+  "name": "SwaVan",
+  "homepage_url": "https://swavan.io",
+  "description": "SwaVan allow user to mock data and redirect request to another endpoint",
+  "default_locale": "en",
+  "permissions": [
+    "<all_urls>",
+    "webRequest",
+    "webRequestBlocking"
+  ],
+  "icons": {
+    "16": "icons/SwaVan16.png",
+    "32": "icons/SwaVan32.png",
+    "48": "icons/SwaVan48.png",
+    "64": "icons/SwaVan64.png",
+    "96": "icons/SwaVan96.png",
+    "128": "icons/SwaVan128.png"
+  },
+  "background": {
+    "scripts": [
+      "js/background.js"
+    ],
+    "persistent": true
+  },
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_title": "Swavan",
+    "default_icon": {
+      "16": "icons/SwaVan16.png",
+      "32": "icons/SwaVan32.png",
+      "48": "icons/SwaVan48.png",
+      "64": "icons/SwaVan64.png",
+      "96": "icons/SwaVan96.png",
+      "128": "icons/SwaVan128.png"
+    }
+  }
+}
