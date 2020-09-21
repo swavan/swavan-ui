@@ -11,7 +11,7 @@
 .app-desc {
     font-weight: 400;
     padding: 25px;
-    text-align: left;
+    text-align: center;
 }
 
 .me {
@@ -21,7 +21,7 @@
     text-align: center;
 }
 
-.thanks{
+.thanks {
     position: fixed;
     bottom: 0;
     font-size: small;
@@ -42,8 +42,7 @@
         </div>
     </div>
     <div class="app-desc">
-        SwaVan allow you to Intercept and forward XHR request to another endpoint.
-        You can add redirect URL or you can mock data within the app.
+        SwaVan allow you to mock data and forward XHR request to another endpoint.
     </div>
     <div class="me">
         You can find me <a target="blank" href="https://www.linkedin.com/in/biplabpokhrel007/">biplabpokhrel007</a> and

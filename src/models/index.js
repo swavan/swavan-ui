@@ -2,12 +2,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const actions = {
     URL_RELOAD : 'url_reload',
+    TYPES_UPDATE: 'types_update',
     RELOAD : 'reload',
     CONNECT: 'connect',
     DISCONNECT: 'disconnect',
     DISABLE_REFRESH: 'disable_refresh',
     ENABLE_REFRESH: 'enable_refresh',
-    FULL_SCREEN_MODE: 'full_screen'
+    FULL_SCREEN_MODE: 'full_screen',
+    HARD_RELOAD: 'hard_reload'
 }
 
 
