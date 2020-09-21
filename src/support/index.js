@@ -153,13 +153,13 @@ export const BackGroundSupport = {
   },
   isReloadActive: () => store.getters.isReloadActive(),
   refresh: async () => {
-    extensionTabReload();
+    const extensionUrl = extensionTabReload();
     if(BackGroundSupport.isReloadActive() ) {
-      const _tabs = await browser.tabs.query({currentWindow: true, active: true});
+      const _tabs = await browser.tabs.query({ currentWindow: true, active: true});
       if(_tabs && _tabs.length > 0) {
         const _current_tab = _tabs[0];
-        if(_current_tab.url) {
-          browser.tabs.reload()
+        if(_current_tab.url && !_current_tab.url.includes(extensionUrl)) {
+          browser.tabs.reload(_current_tab.id)
           return
         }
       }
@@ -174,12 +174,11 @@ export const extensionTabReload = () => {
   const _filter = (_tab) => _tab.location.origin === url.replace(searchURL,"");
 
   const _pops = extension.getViews({type: "popup"}).filter(_filter)
-  
   if (_pops && _pops.length > 0) {
     const _tabs = extension.getViews({type: "tab"}).filter(_filter)
     if (_tabs && _tabs.length > 0) {
       _tabs[0].location.reload();
-      return
     }
   }
+  return url.replace(searchURL,"")
 }
