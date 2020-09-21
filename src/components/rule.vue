@@ -149,27 +149,35 @@
                             <div class="filter" v-bind:class="[ (response.filters && response.filters.length > 0) ? 'custom-tab-view' : '' ]">
                                 <div v-for="(filter, filterIndex) in response.filters" v-bind:key="filterIndex">
                                     <div  class="custom-select-button  eachRow">
-                                        <b-select class="mb-2 mr-sm-2 mb-sm-0" id="input-source-filter-by-option"
-                                            v-model="filter.filter_by" :options="filter_by_options">
-                                        </b-select>
+
+                                        <b-input-group>
+                                            <b-input-group-prepend>
+                                                <b-form-select id="input-source-filter-by-option"
+                                                    v-model="filter.filter_by" :options="filter_by_options">
+                                                </b-form-select>
+                                            </b-input-group-prepend>
+
                                         <b-tooltip :target="'filter-key-index'+responseIndex+filterIndex"
                                             triggers="hover">
                                             {{ filter.key || "Add Filter Key" }}
                                         </b-tooltip>
-                                        <b-input class="mb-2 mr-sm-2 mb-sm-0" :id="'filter-key-index'+responseIndex+filterIndex"
-                                            v-model.trim="filter.key" required placeholder="Enter Filter Key">
-                                        </b-input>
+                                        <b-form-input :id="'filter-key-index'+responseIndex+filterIndex"
+                                            v-model.trim="filter.key" required placeholder="Key">
+                                        </b-form-input>
                                         <b-tooltip  :target="'filter-value-index'+responseIndex+filterIndex"
                                             triggers="hover">
                                             {{ filter.value || "Add Filter value" }}
                                         </b-tooltip>
-                                        <b-input class="mb-2 mr-sm-2 mb-sm-0" :id="'filter-value-index'+responseIndex+filterIndex"
-                                            v-model.trim="filter.value" required placeholder="Enter Filter Value">
-                                        </b-input>
-                                        <b-button size="sm" variant="light" v-b-tooltip.hover title="Remove filter logic"
-                                            @click="removeFilters(responseIndex, filterIndex)" class="mb-1">
-                                            <b-icon icon="trash" variant="danger" aria-label="Remove filter logic"></b-icon>
-                                        </b-button>
+                                        <b-form-input :id="'filter-value-index'+responseIndex+filterIndex"
+                                            v-model.trim="filter.value" required placeholder="Value">
+                                        </b-form-input>
+                                        <b-input-group-append>
+                                            <b-button size="sm" variant="danger" v-b-tooltip.hover title="Remove filter logic"
+                                                @click="removeFilters(responseIndex, filterIndex)" >
+                                                <b-icon icon="trash" variant="light" aria-label="Remove filter logic"></b-icon>
+                                            </b-button>
+                                        </b-input-group-append>
+                                        </b-input-group>
                                     </div>
                                 </div>
 
@@ -412,11 +420,19 @@ export default {
     justify-content: flex-start;
     align-items: flex-start;
     flex-wrap: nowrap;
+    overflow: hidden;
 }
 
-.custom-select-button > * {
-    width: 120px;
-}
+.custom-select-button > .input-only {
+        width: 120px;
+} 
+
+@media screen and (min-width: 700px) {
+    .custom-select-button > * {
+        width: 100%;
+    } 
+} 
+
 
 .singleLine {
     margin-right: 5px;

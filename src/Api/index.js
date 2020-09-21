@@ -71,7 +71,6 @@ export class Api {
         return responses
     }
 
-
     async deleteResponses(responses) {
         await mock.delete(responses.map(row => ({ "id": row.id, "key": row.key })))
     }
@@ -120,7 +119,6 @@ export class Api {
             }
         })
     }
-
 
     async deleteRule(rule) {
         if (rule && rule.responses && rule.responses.length > 0) {
@@ -183,6 +181,24 @@ export class Api {
         .filter(row => search ? row.url.includes(search): row)
         .toArray();
         return urls
+    }
+
+    async loadRequestFilterTypes() {
+        const _requestFilterTypes =  await db.requestFilterTypes.toArray();
+        if (_requestFilterTypes && _requestFilterTypes.length > 0) {
+            return _requestFilterTypes[0];
+        }
+        return { "id": null, "types": []}
+    }
+    async saveRequestFilterTypes(payload) {
+        await db.transaction('rw', db.requestFilterTypes, async function() {
+            if (payload.id) {
+                await db.requestFilterTypes.put(payload)
+            } else {
+                delete payload.id
+                await db.requestFilterTypes.add(payload)
+            }
+        })
     }
 }
 

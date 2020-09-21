@@ -1,6 +1,6 @@
 <template name="component-name">
 <div>
-    <b-modal :static="true" :lazy="true" id="modal-paste-rule" scrollable header-text-variant="light" header-bg-variant="dark"
+    <b-modal :static="true" :lazy="true" size="xl" id="modal-paste-rule" scrollable header-text-variant="light" header-bg-variant="dark"
     header-close-variant="danger" hide-footer v-model="showPasteModal" title="Paste Rule">
     <b-form-textarea
         class="mock-editor"
@@ -13,13 +13,13 @@
     </b-form-textarea>
     <div class="custom-action">
         <b-button @click="createRule" :disabled=!raw.length variant="primary">
-            <b-icon variant="light" icon="download"></b-icon>
+            <b-icon v-if="!isSaving" variant="light" icon="download"></b-icon>
+            <b-spinner v-if="isSaving" small label="Saving..."></b-spinner>
         </b-button>
     </div>
     </b-modal>
     <div style="padding: 0px 10px">
         <!-- Search Box -->
-        <b-card-group deck>
             <b-card border-variant="light">
                 <div class="search-container">
                     <b-form-input list="my-list-id" v-model="search" v-on:keyup.enter="searchRules"
@@ -37,13 +37,12 @@
                     </b-button-group>
                 </div>
             </b-card>
-        </b-card-group>
 
         <!-- Add new rules  -->
         <div v-if="rules.length > 0" class="add-new">
         </div>
 
-        <b-modal v-b-modal.modal-xl  id="modal-edit-rule" scrollable header-text-variant="light" header-bg-variant="dark"
+        <b-modal :static="true" :lazy="true" v-b-modal.modal-xl size="xl" id="modal-edit-rule" scrollable header-text-variant="light" header-bg-variant="dark"
             header-close-variant="danger" hide-footer v-model="modalShow" :title=modelHeaderText>
             <NewRules :rule=selected_rule v-on:saved=refreshRule
                 v-on:close="()=> modalShow = false"  />
@@ -54,7 +53,7 @@
             No rules found
         </div>
         <!-- List of rules -->
-        <b-table style="min-height: 200px" v-if="rules.length > 0" sticky-header :items="rules" head-variant="light" headVariant=dark
+        <b-table sticky-header="345px" v-if="rules.length > 0" :items="rules" head-variant="light" headVariant=dark
             tableVariant=dark :fields="fields">
             
             <template v-slot:cell(is_enabled)="data">
@@ -66,6 +65,7 @@
             <!-- Title and Descriptions -->
             <!-- Is enabled -->
             <template v-slot:cell(#)="data">
+                <div style="width: 20px">
                 <b-dropdown size="sm" right no-caret variant="link">
                     <template v-slot:button-content>
                         <b-icon icon="three-dots-vertical"></b-icon>
@@ -87,12 +87,13 @@
                         <span> Copy Rule </span>
                     </b-dropdown-item>
                 </b-dropdown>
+                </div>
             </template>
 
             <template v-slot:cell(name)="data">
                 <div style="text-align: left">
                     <strong v-b-tooltip :title=data.item.description v-on:dblclick="copy(data.item, 'b-toaster-bottom-center', false)">
-                        {{ data.item.name | toCamelCase }}
+                        {{ data.item.name }}
                     </strong>
                 </div>
             </template>
@@ -103,9 +104,11 @@
         </b-table>
     </div>
 </div>
-
 </template>
 <style scoped>
+@media all and (max-width: 500px) {
+
+}
 .custom-action {
     padding: 5px 0px;
 }
@@ -153,6 +156,7 @@
     font-weight: 300;
     font-size: medium;
     margin-bottom: 10px;
+    min-height: 330px;
 }
 </style>
 <script>
@@ -160,7 +164,6 @@ import { v4 as uuidv4 } from 'uuid';
 import NewRules from '@/components/rule'
 export default {
     name: "Rules",
-    counter: 0,
     mounted() {},
     components: { NewRules },
     data() {
@@ -172,9 +175,11 @@ export default {
             currentResponses: [],
             modalShow: false,
             showPasteModal: false,
+            isSaving: false,
             raw: ''
         }
     },
+
     methods: {
         async load () { this.$store.dispatch("getRules", this.search) },
         async searchRules() { await this.load() },
@@ -217,14 +222,17 @@ export default {
         },
         async createRule() {
             try {
+                this.isSaving = true;
                 if ( this.raw ) {
                 const parsed = JSON.parse(this.raw);
                 await this.$store.dispatch("saveRule", parsed)
                 await this.refreshRule();
                 this.showPasteModal = false;
                 this.raw = "";
+                this.isSaving = false
                 }
             } catch (err) {
+                this.isSaving = false
                 this.notifier("!!! Error", "Unable to save the data", 'danger', true)
             }
         },
@@ -248,14 +256,5 @@ export default {
     computed: {
         rules() { return this.$store.getters.rules },
     },
-    filters: {
-        toCamelCase : (str) => str 
-            ? str.toLowerCase()
-                .split(' ')
-                .map((word) => word.replace(word[0], word[0].toUpperCase()))
-                .join(' ')
-            : '',
-    }
-
 }
 </script>

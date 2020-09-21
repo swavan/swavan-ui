@@ -13,9 +13,13 @@ export default new Vuex.Store({
     browserName: String,
     urls: [],
     settings: {},
-    appData: {}
+    appData: {},
+    requestTypes: {},
   },
   mutations: {
+    setTypes(state, payload) {
+      state.requestTypes = payload
+    },
     setAppInfo(state, payload) {
       state.appData = payload
     },
@@ -76,7 +80,14 @@ export default new Vuex.Store({
     },
     async deleteHostUrl(state, url) {
       await api.deleteHostURL(url)
-    }
+    },
+    async saveRequestFilterTypes(state, payload) {
+      await api.saveRequestFilterTypes(payload)
+    },
+    async loadRequestFilterTypes(state) {
+      const payload =  await api.loadRequestFilterTypes();
+      state.commit("setTypes", payload)
+    },
   },
   modules: {
   },
@@ -107,6 +118,9 @@ export default new Vuex.Store({
     },
     info: (state) => {
       return state.appData
+    },
+    requestTypes: (state) => {
+      return state.requestTypes;
     }
   }
 })

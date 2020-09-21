@@ -9,22 +9,30 @@ export const BackGroundSupport = {
   data: {
     beforeRequestOptions: ['blocking', 'requestBody'],
     requestFilters: {
-      urls: [`<all_urls>`],
-      types: ["xmlhttprequest"] }
+     urls: [`<all_urls>`],
+     types: [""]
+    },
+    isReloadActive: store.getters.isReloadActive()
   },
   storeInit: async () => {
     store.commit('identifyBrowser') 
     await store.dispatch("loadSetting")
     await store.dispatch("loadHostUrl")
     await store.dispatch("getRules")
+    await store.dispatch("loadRequestFilterTypes")
   },
   updateStore: async () => {
-    // for (const rule of store.getters.activeRules) {
-    //   await store.dispatch("loadResponses", rule.id)
-    // }
     const _urls = store.getters.hostUrls.map(({url}) => url)
     if(_urls && _urls.length > 0) {
       BackGroundSupport.data.requestFilters.urls = _urls
+    } else {
+      BackGroundSupport.data.requestFilters.urls =  [`<all_urls>`];
+    }
+    const { types } = store.getters.requestTypes;
+    if ( types && types.length > 0 ) {
+      BackGroundSupport.data.requestFilters['types'] = [ ...types];
+    } else {
+      delete BackGroundSupport.data.requestFilters['types']
     }
   },
   registerBrowserCalls: () => {
@@ -102,17 +110,77 @@ export const BackGroundSupport = {
     BackGroundSupport.deleteListeners();
     BackGroundSupport.addListener();
   },
-  start: async() => {
+  dataLoader: async() => {
     await BackGroundSupport.storeInit();
-    if( store.getters.isActive ) {
-      await BackGroundSupport.updateStore();
-      BackGroundSupport.registerBrowserCalls();
-    }
+    await BackGroundSupport.updateStore();
+  },
+  start: async() => {
+    await BackGroundSupport.dataLoader();
+    BackGroundSupport.registerBrowserCalls();
+    BackGroundSupport.activeIcon();
   },
   stop: () => {
     BackGroundSupport.deleteListeners();
+    BackGroundSupport.inactiveIcon()
   },
-  updateSetting: async() => { await store.dispatch("loadSetting") },
+  activeIcon: () => {
+    browser.browserAction.setIcon({
+      path: {
+        16: "../icons/SwaVan16.png",
+        32: "../icons/SwaVan32.png",
+        48: "../icons/SwaVan48.png",
+        64: "../icons/SwaVan64.png",
+        96: "../icons/SwaVan96.png",
+        128: "../icons/SwaVan128.png",
+      },
+    })
+  },
+  inactiveIcon: () => {
+    browser.browserAction.setIcon({
+      path: {
+        16: "../icons/SwaVanDisable16.png",
+        32: "../icons/SwaVanDisable32.png",
+        48: "../icons/SwaVanDisable48.png",
+        64: "../icons/SwaVanDisable64.png",
+        96: "../icons/SwaVanDisable96.png",
+        128: "../icons/SwaVanDisable128.png",
+      },
+    })
+  },
+  updateSetting: async() => {
+    await store.dispatch("loadSetting");
+    this.data.isReloadActive = store.getters.isReloadActive()
+  },
+  extensionTabReload:() => {
+
+    const searchURL = '/swavan-rules'
+    const url = browser.runtime.getURL(searchURL);
+    const extension = browser.extension;
+    const _filter = (_tab) => _tab.location.origin === url.replace(searchURL,"");
+
+    const _pops = extension.getViews({type: "popup"}).filter(_filter)
+    
+    if (_pops && _pops.length > 0) {
+      const _tabs = extension.getViews({type: "tab"}).filter(_filter)
+      if (_tabs && _tabs.length > 0) {
+        _tabs[0].location.reload();
+        return
+      }
+    }
+  },
   isReloadActive: () => store.getters.isReloadActive(),
-  refresh:() => browser.tabs.reload()
+  refresh: async () => {
+    BackGroundSupport.extensionTabReload();
+    if(BackGroundSupport.isReloadActive() ) {
+      const _tabs = await browser.tabs.query({currentWindow: true, active: true});
+      if(_tabs && _tabs.length > 0) {
+        const _current_tab = _tabs[0];
+        if(_current_tab.url) {
+          browser.tabs.reload()
+          return
+        }
+      }
+    }
+  }
+  
 }

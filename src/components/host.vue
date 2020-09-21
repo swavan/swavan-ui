@@ -14,7 +14,7 @@
             <template v-slot:prepend>
                 <b-input-group-text id="host_input_group" >Host Url</b-input-group-text>
               </template>
-            <b-form-input placeholder="*://www.example.com/*" v-model="url"></b-form-input>
+            <b-form-input placeholder="*://www.example.com/*" v-model.trim="url"></b-form-input>
             <b-input-group-append>
               <b-button variant="primary" @click="addHost()">Add</b-button>
             </b-input-group-append>

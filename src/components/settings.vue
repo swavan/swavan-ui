@@ -5,6 +5,9 @@
                 Reload on action is <b>{{ preferences.reload ? "Active" : "Inactive" }}</b>
             </b-form-checkbox>
         </div>
+        <div>
+            <type />
+        </div>
     </div>
 </template>
 <style scoped>
@@ -39,11 +42,14 @@
 }
 </style>
 <script>
+import type from './type';
+
 export default {
     name: "settings",
     async created() {
         await this.$store.dispatch("loadSetting");
     },
+    components: { type },
     methods: {
         async toggleSetting() {
             this.preferences.reload = !this.preferences.reload;

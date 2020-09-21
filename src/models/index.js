@@ -2,12 +2,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const actions = {
     URL_RELOAD : 'url_reload',
+    TYPES_UPDATE: 'types_update',
     RELOAD : 'reload',
     CONNECT: 'connect',
     DISCONNECT: 'disconnect',
     DISABLE_REFRESH: 'disable_refresh',
     ENABLE_REFRESH: 'enable_refresh',
-    FULL_SCREEN_MODE: 'full_screen'
+    FULL_SCREEN_MODE: 'full_screen',
+    HARD_RELOAD: 'hard_reload'
 }
 
 
@@ -127,6 +129,23 @@ export const HeaderModel = {
     field: '',
     value: ''
 }
+
+export const REQUEST_TYPE = [
+    { text: 'font', value :'font' },
+    { text: 'image', value : 'image' },
+    { text: 'main_frame', value : 'main_frame' },
+    { text: 'media', value : 'media' },
+    { text: 'object', value : 'object' },
+    { text: 'script', value : 'script' },
+    { text: 'stylesheet', value : 'stylesheet' },
+    { text: 'sub_frame', value : 'sub_frame' },
+    { text: 'xbl', value : 'xbl' },
+    { text: 'xml_dtd', value : 'xml_dtd' },
+    { text: 'xmlhttprequest', value : 'xmlhttprequest' },
+    { text: 'xslt', value : 'xslt' },
+    { text: 'web_manifest', value : 'web_manifest' },
+    { text: 'other', value: 'other' }
+]
 
 export const DataModel = {
     id: null,
