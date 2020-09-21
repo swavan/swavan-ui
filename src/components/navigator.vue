@@ -48,10 +48,6 @@ img {
     background: rgb(233, 229, 229);
 }
 
-/* img:hover {
-    background: rgb(255, 255, 255, 0.2);
-} */
-
 .dot {
     height: 25px;
     width: 25px;

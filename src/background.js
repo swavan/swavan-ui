@@ -1,4 +1,4 @@
-import { BackGroundSupport } from './support';
+import { BackGroundSupport, extensionTabReload } from './support';
 
 import { actions } from './models';
 
@@ -44,6 +44,7 @@ try {
             background.stop();
           }
           background = {};
+          extensionTabReload();
           break;
         }
         case actions.ENABLE_REFRESH: {

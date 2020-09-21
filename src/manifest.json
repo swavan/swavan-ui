@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "SwaVan",
   "homepage_url": "https://swavan.io",
-  "description": "SwaVan allow user to redirect request to another endpoint",
+  "description": "SwaVan allow user to mock data and redirect request to another endpoint",
   "default_locale": "en",
   "permissions": [
     "<all_urls>",

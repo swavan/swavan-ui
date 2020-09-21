@@ -130,23 +130,6 @@ export const HeaderModel = {
     value: ''
 }
 
-export const REQUEST_TYPE = [
-    { text: 'font', value :'font' },
-    { text: 'image', value : 'image' },
-    { text: 'main_frame', value : 'main_frame' },
-    { text: 'media', value : 'media' },
-    { text: 'object', value : 'object' },
-    { text: 'script', value : 'script' },
-    { text: 'stylesheet', value : 'stylesheet' },
-    { text: 'sub_frame', value : 'sub_frame' },
-    { text: 'xbl', value : 'xbl' },
-    { text: 'xml_dtd', value : 'xml_dtd' },
-    { text: 'xmlhttprequest', value : 'xmlhttprequest' },
-    { text: 'xslt', value : 'xslt' },
-    { text: 'web_manifest', value : 'web_manifest' },
-    { text: 'other', value: 'other' }
-]
-
 export const DataModel = {
     id: null,
     content: "",

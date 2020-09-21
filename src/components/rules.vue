@@ -53,7 +53,7 @@
             No rules found
         </div>
         <!-- List of rules -->
-        <b-table sticky-header="345px" v-if="rules.length > 0" :items="rules" head-variant="light" headVariant=dark
+        <b-table style="min-height: 200px" sticky-header="345px" v-if="rules.length > 0" :items="rules" head-variant="light" headVariant=dark
             tableVariant=dark :fields="fields">
             
             <template v-slot:cell(is_enabled)="data">
@@ -106,9 +106,6 @@
 </div>
 </template>
 <style scoped>
-@media all and (max-width: 500px) {
-
-}
 .custom-action {
     padding: 5px 0px;
 }
