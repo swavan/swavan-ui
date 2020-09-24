@@ -124,7 +124,7 @@ export class Api {
         if (rule && rule.responses && rule.responses.length > 0) {
             const delete_responses = rule.responses.filter(res => res.data && res.data.id && res.data.key);
 
-            if (delete_responses) {
+            if (delete_responses delete_responses.length > 0) {
                 await mock.delete(delete_responses.map(row => ({ "id": row.data.id, "key": row.data.key })))
             }
         }
