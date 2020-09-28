@@ -122,10 +122,11 @@ export class Api {
 
     async deleteRule(rule) {
         if (rule && rule.responses && rule.responses.length > 0) {
-            const delete_responses = rule.responses.filter(res => res.data && res.data.id && res.data.key);
+            const delete_responses = rule.responses.filter(res => res.data && res.data.id && res.data.key && res.cloud_store_permission === 'a');
 
-            if (delete_responses delete_responses.length > 0) {
-                await mock.delete(delete_responses.map(row => ({ "id": row.data.id, "key": row.data.key })))
+            if (delete_responses && delete_responses.length > 0) {
+                mock.delete(delete_responses.map(row => ({ "id": row.data.id, "key": row.data.key })))
+                .catch(() => console.error("Unable to remove cloud data"))
             }
         }
         await db.transaction('rw', db.rules, async function() {
