@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 class Mock {
-    base = "https://swavan.io"
+    base = "https://api.swavan.io"
     endpoint = `${this.base}/mock/v1`
 
     update_default_endpoint(override_endpoint) {
