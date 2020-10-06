@@ -53,7 +53,13 @@
             No rules found
         </div>
         <!-- List of rules -->
-        <b-table style="min-height: 200px" sticky-header="345px" v-if="rules.length > 0" :items="rules" head-variant="light" headVariant=dark
+        <b-table
+            :sticky-header="tableHeight"
+            v-if="rules.length > 0"
+            :items="rules"
+            :sort-by.sync="sortBy"
+            head-variant="light"
+            headVariant=dark
             tableVariant=dark :fields="fields">
             
             <template v-slot:cell(is_enabled)="data">
@@ -166,7 +172,12 @@ export default {
     data() {
         return {
             search : '',
-            fields : ["#","name", "is_enabled"],
+            sortBy: "name",
+            fields : [
+                {key: "#", sortable: false},
+                {key: "name", sortable: true},
+                {key: "is_enabled", sortable: true}
+            ],
             modelHeaderText: 'Add new rule',
             selected_rule: {},
             currentResponses: [],
@@ -252,6 +263,18 @@ export default {
     async created () { await this.$store.dispatch("getRules", this.search) },
     computed: {
         rules() { return this.$store.getters.rules },
+
+        tableHeight() {
+            const searchURL = '/swavan-rules'
+            var url = browser.runtime.getURL(searchURL);
+            const _extensionPopup = browser.extension.getViews({type: "popup"})
+            for (const _tab of _extensionPopup) {
+                if (_tab.location.origin === url.replace(searchURL,"")) {
+                    return '345px'
+                }
+            }
+            return '76vh'
+        },
     },
 }
 </script>
