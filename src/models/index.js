@@ -126,7 +126,7 @@ export const FilterModel = {
 
 export const HeaderModel = {
     type: '',
-    field: '',
+    key: '',
     value: ''
 }
 

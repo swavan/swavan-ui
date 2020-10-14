@@ -57,17 +57,21 @@
                                 <b-form-input v-if="response.data_source_type === 'r'" id="swavan-rules-data"
                                     v-model="response.data.link" placeholder="Enter Redirect URL">
                                 </b-form-input>
-
-                                <b-alert v-if="response.data_source_type === 'd' && response.data.link" variant="success"
-                                    show>
-                                <a v-bind:href="response.data.link" target="blank">{{ response.data.link }}</a> 
-                                </b-alert>
-                                <b-button @click="load_mocked_response(responseIndex, response.data.id)" size="sm"
-                                    v-if="response.data_source_type === 'd' && response.data && !response.data.is_mock_loading && response.data.id && !response.data.content "
-                                    variant="link" type="button">
-                                    <b-icon icon="pencil-square" aria-hidden="true"></b-icon>
-                                </b-button>
-                                <b-icon v-if="response.data && response.data.is_mock_loading" icon="arrow-clockwise" animation="spin-pulse" font-scale="4"></b-icon>
+                                <b-input-group v-if="response.data_source_type === 'd' && response.data.link" class="mt-3">
+                                    <b-input-group-prepend>
+                                        <b-button variant="primary" v-bind:href="response.data.link" target="blank">{{ response.data.link }}</b-button>
+                                    </b-input-group-prepend>
+                                    <b-input-group-append>
+                                        <b-button @click="load_mocked_response(responseIndex, response.data.id)"
+                                            v-if="response.data_source_type === 'd' && response.data && !response.data.is_mock_loading && response.data.id && !response.data.content "
+                                            variant="link" type="button">
+                                            <b-icon icon="pencil-square" aria-hidden="true"></b-icon>
+                                        </b-button>
+                                        <b-button variant="info" v-if="response.data && response.data.is_mock_loading" >
+                                            <b-icon icon="arrow-clockwise" animation="spin-pulse"></b-icon>
+                                        </b-button>
+                                    </b-input-group-append>
+                                </b-input-group>
                             </div>
 
                             <div class="custom-tab-view"
@@ -89,7 +93,6 @@
                                                 Store mock data in the server
                                             </b-form-checkbox>
                                         </div>
-
                                         <div v-if="response.cloud_store_permission !== 'a'" class="notification">
                                             <b-alert show>
                                                 This extension use <code> data: </code> schema to redirect the call and some
@@ -101,18 +104,22 @@
                                         title="Headers">
                                         <div v-for="(header, headerIndex) in response.data.headers"
                                             v-bind:key="headerIndex">
-                                            <div class="custom-select-button eachRow">
-                                                <b-form-input class="singleLine" id="swavan-header-key"
-                                                    v-model.trim="header.field" required placeholder="Header Field">
-                                                </b-form-input>
-                                                <b-form-input class="singleLine" id="swavan-header-value"
-                                                    v-model.trim="header.value" required placeholder="Value">
-                                                </b-form-input>
-                                                <b-button size="sm" variant="dark" v-b-tooltip.hover title="Remove header"
-                                                    @click="removeHeader(responseIndex, headerIndex)" class="mb-1">
-                                                    <b-icon icon="trash" variant="danger" aria-label="Remove header logic">
-                                                    </b-icon>
-                                                </b-button>
+                                            <div class="eachRow">
+                                                <b-input-group>
+                                                    <b-form-input id="swavan-header-key"
+                                                        v-model.trim="header.key" required placeholder="Header Field">
+                                                    </b-form-input>
+                                                    <b-form-input id="swavan-header-value"
+                                                        v-model.trim="header.value" required placeholder="Value">
+                                                    </b-form-input>
+                                                    <b-input-group-append>
+                                                        <b-button variant="secondary" v-b-tooltip.hover title="Remove header"
+                                                            @click="removeHeader(responseIndex, headerIndex)" class="mb-1">
+                                                            <b-icon icon="trash" variant="danger" aria-label="Remove header">
+                                                            </b-icon>
+                                                        </b-button>
+                                                    </b-input-group-append>
+                                                </b-input-group>
                                             </div>
                                         </div>
                                         <b-button size="md" variant="link" v-b-tooltip.hover title="Add more header"
@@ -140,37 +147,34 @@
                                     </b-tab>
                                 </b-tabs>
                             </div>
-
                             <b-form-group description="Use this response logic for given HTTP method">
                                 <b-form-select id="input-source-http-method" v-model="response.http_method"
                                     :options="http_methods"></b-form-select>
                             </b-form-group>
-
                             <div class="filter" v-bind:class="[ (response.filters && response.filters.length > 0) ? 'custom-tab-view' : '' ]">
                                 <div v-for="(filter, filterIndex) in response.filters" v-bind:key="filterIndex">
-                                    <div  class="custom-select-button  eachRow">
-
+                                    <div class="eachRow">
                                         <b-input-group>
                                             <b-input-group-prepend>
                                                 <b-form-select id="input-source-filter-by-option"
                                                     v-model="filter.filter_by" :options="filter_by_options">
                                                 </b-form-select>
                                             </b-input-group-prepend>
+                                            <b-tooltip :target="'filter-key-index'+responseIndex+filterIndex"
+                                                triggers="hover">
+                                                {{ filter.key || "Add Filter Key" }}
+                                            </b-tooltip>
+                                            <b-form-input :id="'filter-key-index'+responseIndex+filterIndex"
+                                                v-model.trim="filter.key" required placeholder="Key">
+                                            </b-form-input>
+                                            <b-tooltip  :target="'filter-value-index'+responseIndex+filterIndex"
+                                                triggers="hover">
+                                                {{ filter.value || "Add Filter value" }}
+                                            </b-tooltip>
+                                            <b-form-input :id="'filter-value-index'+responseIndex+filterIndex"
+                                                v-model.trim="filter.value" required placeholder="Value">
+                                            </b-form-input>
 
-                                        <b-tooltip :target="'filter-key-index'+responseIndex+filterIndex"
-                                            triggers="hover">
-                                            {{ filter.key || "Add Filter Key" }}
-                                        </b-tooltip>
-                                        <b-form-input :id="'filter-key-index'+responseIndex+filterIndex"
-                                            v-model.trim="filter.key" required placeholder="Key">
-                                        </b-form-input>
-                                        <b-tooltip  :target="'filter-value-index'+responseIndex+filterIndex"
-                                            triggers="hover">
-                                            {{ filter.value || "Add Filter value" }}
-                                        </b-tooltip>
-                                        <b-form-input :id="'filter-value-index'+responseIndex+filterIndex"
-                                            v-model.trim="filter.value" required placeholder="Value">
-                                        </b-form-input>
                                         <b-input-group-append>
                                             <b-button size="sm" variant="danger" v-b-tooltip.hover title="Remove filter logic"
                                                 @click="removeFilters(responseIndex, filterIndex)" >

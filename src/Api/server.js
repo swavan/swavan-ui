@@ -1,24 +1,38 @@
 import axios from 'axios'
+import db from '../database';
 
 class Mock {
     base = "https://api.swavan.io"
-    endpoint = `${this.base}/mock/v1`
+    default_endpoint = `${this.base}/mock/v1`
 
     update_default_endpoint(override_endpoint) {
-        this.endpoint = override_endpoint
+        this.default_endpoint = override_endpoint
+    }
+
+    async customMockUrl () {
+        let url
+        await db.settings.toCollection().first(({ mockApiUrl }) => {
+            url = mockApiUrl;
+        })
+        return url
     }
     async post(payload) {
-       const response = await axios.post(`${this.endpoint}`, payload);
-       return response
+        const custom_endpoint = await this.customMockUrl()
+        const response = await axios.post(`${custom_endpoint || this.default_endpoint}`, payload);
+        return response
     }
     async put(payload) {
-        await axios.put(`${this.endpoint}`, payload);
+        const custom_endpoint = await this.customMockUrl()
+        await axios.put(`${custom_endpoint || this.default_endpoint}`, payload);
     }
     async delete(payload) {
-        await axios.delete(`${this.endpoint}`, {data: payload});
+        const custom_endpoint = await this.customMockUrl()
+        await axios.delete(`${custom_endpoint || this.default_endpoint}`, {data: payload});
     }
+
     async get(id) {
-        const response = await axios.get(`${this.endpoint}/${id}`)
+        const custom_endpoint = await this.customMockUrl()
+        const response = await axios.get(`${custom_endpoint || this.default_endpoint}/${id}`)
         return response
     }
 
@@ -30,6 +44,14 @@ class Mock {
     async info() {
         const _info = await axios.get(`${this.base}/info`)
         return _info
+    }
+
+    async callAll(contents) {
+        const postedContents = await this.post(contents);
+        contents[0]["id"] = postedContents.data[0]["id"] 
+        await this.get(postedContents.data[0].id);
+        await this.put(contents);
+        await this.delete(postedContents.data);
     }
 }
 

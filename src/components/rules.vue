@@ -161,6 +161,9 @@
     margin-bottom: 10px;
     min-height: 330px;
 }
+.b-table-sticky-header {
+    overflow-y:visible;
+}
 </style>
 <script>
 import { v4 as uuidv4 } from 'uuid';

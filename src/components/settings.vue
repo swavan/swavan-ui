@@ -8,6 +8,9 @@
         <div>
             <type />
         </div>
+        <div class="status">
+            <server :mockApiUrl=this.preferences.mockApiUrl  v-on:saveMockUrl=saveMockUrl />
+        </div>
     </div>
 </template>
 <style scoped>
@@ -43,13 +46,14 @@
 </style>
 <script>
 import type from './type';
+import server from './server';
 
 export default {
     name: "settings",
     async created() {
         await this.$store.dispatch("loadSetting");
     },
-    components: { type },
+    components: { type, server },
     methods: {
         async toggleSetting() {
             this.preferences.reload = !this.preferences.reload;
@@ -61,7 +65,25 @@ export default {
             }
 
            await browser.runtime.sendMessage({ "action": action() })
-        }
+        },
+        async saveMockUrl(url) {
+            this.preferences.mockApiUrl = url;
+            await this.$store.dispatch("saveSettings", this.preferences);
+            if(url) {
+                this.notification('Updated mock server to custom provider')
+            } else {
+                this.notification('Updated mock server to default provider', 'dark');
+            }
+        },
+        notification(message, color='primary') {
+            this.$bvToast.toast(message, {
+                title: 'Mock server configuration',
+                toaster: 'b-toaster-bottom-center',
+                variant: color,
+                appendToast: false,
+                autoHideDelay: "3000"
+            });
+        },
     },
     computed: {
         preferences() {
