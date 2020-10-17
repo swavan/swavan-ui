@@ -135,8 +135,8 @@ export const DataModel = {
     content: "",
     link: "",
     key: uuidv4(),
-    status: 200,
-    contentType: "application/json",
+    status: "200",
+    content_type: "application/json",
     headers: [],
     action_perform: 'a',
     is_mock_loading: false

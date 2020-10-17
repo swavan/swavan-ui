@@ -1,5 +1,17 @@
 <template name="new-rules">
     <div class="rule">
+          <b-modal
+            header-bg-variant="dark"
+            header-border-variant="dark"
+            header-text-variant="light"
+            ok-only
+            ok-title="Close"
+            ok-variant="danger"
+            id="modal-center" v-model="hasError" centered title="Error Message">
+            <p class="my-4">
+                {{ this.errorMessage }}
+            </p>
+         </b-modal>
         <b-form @submit="onSubmit" @reset="onReset" v-if="show">
             <div class="eachRow">
                 <b-form-input id="swavan-rules-name" v-model.trim="form.name" required
@@ -53,24 +65,36 @@
                             </b-form-group>
                             <div v-if="(response.data && response.data.id) || response.data_source_type === 'r'"
                                 class="link-line">
-
                                 <b-form-input v-if="response.data_source_type === 'r'" id="swavan-rules-data"
                                     v-model="response.data.link" placeholder="Enter Redirect URL">
                                 </b-form-input>
                                 <b-input-group v-if="response.data_source_type === 'd' && response.data.link" class="mt-3">
                                     <b-input-group-prepend>
-                                        <b-button variant="primary" v-bind:href="response.data.link" target="blank">{{ response.data.link }}</b-button>
-                                    </b-input-group-prepend>
-                                    <b-input-group-append>
-                                        <b-button @click="load_mocked_response(responseIndex, response.data.id)"
+
+                                        <b-button v-b-tooltip.hover title="Edit Mock Data" @click="load_mocked_response(responseIndex, response.data.id)"
                                             v-if="response.data_source_type === 'd' && response.data && !response.data.is_mock_loading && response.data.id && !response.data.content "
-                                            variant="link" type="button">
+                                            variant="primary" type="button">
                                             <b-icon icon="pencil-square" aria-hidden="true"></b-icon>
                                         </b-button>
-                                        <b-button variant="info" v-if="response.data && response.data.is_mock_loading" >
-                                            <b-icon icon="arrow-clockwise" animation="spin-pulse"></b-icon>
+
+                                        <b-button variant="primary" v-if="response.data && response.data.is_mock_loading" >
+                                            <b-icon icon="arrow-clockwise" scale="2" animation="spin-pulse"></b-icon>
+                                        </b-button>
+
+                                        <b-form-input
+                                            variant="link"
+                                            v-model="response.data.link"
+                                            readonly
+                                            >
+                                        </b-form-input>
+                                    </b-input-group-prepend>
+
+                                    <b-input-group-append>
+                                        <b-button v-b-tooltip.hover title="View Mock Data" variant="dark" v-bind:href="response.data.link" target="blank" >
+                                            <b-icon variant="light" scale="1.5" icon="arrow-up-right" font-scale="1"></b-icon>
                                         </b-button>
                                     </b-input-group-append>
+
                                 </b-input-group>
                             </div>
 
@@ -131,7 +155,7 @@
                                     <b-tab v-if="response.cloud_store_permission === 'a'" class="custom-tab-body"
                                         title="Status">
                                         <b-form-group description="Status code will be return in response">
-                                            <b-form-input type="number" id="swavan-rules-data"
+                                            <b-form-input type="text" id="swavan-rules-data"
                                                 v-model="response.data.status" placeholder="Status code">
                                             </b-form-input>
                                         </b-form-group>
@@ -141,7 +165,7 @@
                                         <!-- Filter section -->
                                         <b-form-group description="Content type of the response data">
                                             <b-form-input type="text" id="swavan-rules-data"
-                                                v-model="response.data.contentType" placeholder="Content Type">
+                                                v-model="response.data.content_type" placeholder="Content Type">
                                             </b-form-input>
                                         </b-form-group>
                                     </b-tab>
@@ -214,7 +238,7 @@
                 </b-form-checkbox>
             </div>
             <div class="eachRow">
-                <b-icon v-if="isSaving" icon="arrow-clockwise" animation="spin-pulse" font-scale="4"></b-icon>
+                <b-icon v-if="isSaving" icon="arrow-clockwise" animation="spin-pulse" font-scale="1"></b-icon>
                 <b-button v-if="!isSaving" size="md" :disabled=!isFormValid variant="primary" type="submit">
                     <b-icon icon="download" aria-hidden="true"></b-icon>
                     Save
@@ -277,7 +301,9 @@ export default {
             http_methods : HTTP_METHODS_OPTIONS,
             filter_by_options : FILTER_BY_OPTIONS,
             show: true,
-            isSaving: false
+            isSaving: false,
+            hasError: false,
+            errorMessage: ""
         }
     },
     methods: {
@@ -290,12 +316,20 @@ export default {
                     row.data.action_perform = 'a';
                 }
             })
-            await this.$store.dispatch("saveRule", {...save_data})
-            this.form.name = ""
-            this.form.description = ""
-
-            this.$emit("saved")
-            this.isSaving = false
+            try {
+                await this.$store.dispatch("saveRule", {...save_data})
+                this.isSaving = false;
+                this.form.name = ""
+                this.form.description = ""
+                this.$emit("saved")
+            } catch {
+                this.errorMessage = `
+                    Oops something went wrong,
+                    unable to save data
+                    please try again later`;
+                this.isSaving = false
+                this.hasError = true
+            }
         },
         onReset(evt) {
             evt.preventDefault()
@@ -306,8 +340,8 @@ export default {
                 this.show = true
             })
         },
-        async cancelRule() {
-            this.$emit("close") 
+        cancelRule() {
+            this.$emit("close")
         },
         addResponses() {
             const responses = {...ResponseModel};
@@ -337,20 +371,28 @@ export default {
         },
         async load_mocked_response(responseIndex, response_data_id) {
             this.$set(this.form.responses[responseIndex].data, "is_mock_loading", true)
-            const mock = await this.$store.dispatch('getResponseByID', response_data_id)
-            if ( mock.status === 200 ) {
-                Object.keys(mock.data).forEach((key) => {
-                    if(key === "content") {
-                        const content = mock.data[key];
-                        try {
-                            mock.data[key] = content
-                        } catch {
-                            mock.data[key] = content
+            try {
+                const mock = await this.$store.dispatch('getResponseByID', response_data_id)
+                if ( mock.status === 200 ) {
+                    Object.keys(mock.data).forEach((key) => {
+                        if(key === "content") {
+                            const content = mock.data[key];
+                            try {
+                                mock.data[key] = content
+                            } catch {
+                                mock.data[key] = content
+                            }
                         }
-                    }
-                    this.$set(this.form.responses[responseIndex].data, key, mock.data[key])
-                })
-                this.$set(this.form.responses[responseIndex].data, 'action_perform', 'e')
+                        this.$set(this.form.responses[responseIndex].data, key, mock.data[key])
+                    })
+                    this.$set(this.form.responses[responseIndex].data, 'action_perform', 'e')
+                }
+            } catch {
+                this.errorMessage = `
+                    Oops something went wrong,
+                    Unable to fetch the data at this time 
+                    please try again later`;
+                this.hasError = true
             }
             this.$set(this.form.responses[responseIndex].data, "is_mock_loading", false)
         },

@@ -11,7 +11,7 @@ export class Api {
             id: response.data.id,
             status: response.data.status || 200,
             content: response.data.content,
-            contentType: response.data.contentType,
+            content_type: response.data.content_type,
             key: response.data.key,
             headers: response.data.headers || []
         }
@@ -126,7 +126,6 @@ export class Api {
 
             if (delete_responses && delete_responses.length > 0) {
                 mock.delete(delete_responses.map(row => ({ "id": row.data.id, "key": row.data.key })))
-                .catch(() => console.error("Unable to remove cloud data"))
             }
         }
         await db.transaction('rw', db.rules, async function() {

@@ -35,10 +35,13 @@
 <div>
     <div class="app-info">
         <div>
-            <strong>{{info.app_name}}</strong>
-        </div>
-        <div>
-            <strong>{{info.version}}</strong>
+            <strong>
+               <a href="https://swava.io" target="_blank"> SwaVan.io </a>
+            </strong>
+            <div></div>
+            <strong>
+               {{info.version}} 
+            </strong>
         </div>
     </div>
     <div class="app-desc">
@@ -58,8 +61,12 @@
 <script>
 export default {
     name: "about",
-    async created() {
-        await this.$store.dispatch('loadAppInfo');
+    created() {
+        try {
+            this.$store.dispatch('loadAppInfo');
+        } catch {
+            console.info('Unable to access extension info')
+        }
     },
     computed: {
         info() {
