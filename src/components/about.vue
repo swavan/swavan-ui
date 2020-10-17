@@ -65,6 +65,7 @@ export default {
         try {
             this.$store.dispatch('loadAppInfo');
         } catch {
+            // eslint-disable-next-line
             console.info('Unable to access extension info')
         }
     },
