@@ -254,6 +254,7 @@
 </template>
 
 <script>
+import { v4 as uuidv4 } from 'uuid';
 
 import {
     RuleModel,
@@ -346,6 +347,7 @@ export default {
         addResponses() {
             const responses = {...ResponseModel};
             responses.data = {...DataModel};
+            responses.data.key = uuidv4();
             responses.filters = [];
             this.form.responses.push({...responses})
         },
