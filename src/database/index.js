@@ -1,10 +1,10 @@
 import Dexie from 'dexie';
 
 const db = new Dexie('swaVanDb');
-db.version(2).stores({
+db.version(3).stores({
     settings: `++id, isEnabled, reload, mockApiUrl`,
     hostURLs: `++id, url`,
-    rules: `++id, name, description, source_type, source, operator, is_enabled, responses`,
+    rules: `++id, name, description, source_type, source, operator, is_enabled, is_favorite, responses`,
     requestFilterTypes: `++id, types`,
 });
 

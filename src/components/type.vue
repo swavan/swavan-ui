@@ -3,7 +3,7 @@
         <div class="swavan-app-types">
             <div class="swavan-app-types-head">
                 Filtered request type
-                <b-badge v-b-tooltip.hover title="Click here to know more about request types" variant="link" target="blank" href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/ResourceType">
+                <b-badge v-b-tooltip.hover title="Click here to know more about request types" variant="link" target="_blank" href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/ResourceType">
                     <b-icon scale="1.5" variant="primary" icon="question-circle-fill" aria-label="Help"></b-icon>
                 </b-badge>
             </div>

@@ -104,6 +104,7 @@ export const RuleModel = {
     operator: "c",
     source: "",
     is_enabled: true,
+    is_favorite: false,
     responses: [],
 }
 
@@ -114,7 +115,8 @@ export const ResponseModel = {
     http_method: "al",
     filters: [],
     is_logic_enabled: true,
-    cloud_store_permission: 'a'
+    cloud_store_permission: 'a',
+    tags: '',
 }
 
 export const FilterModel = {
