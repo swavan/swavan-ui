@@ -3,14 +3,14 @@
     <b-form-checkbox switch v-model="useCustom" @change=changeToServerConfig size="lg">
         Change default mock provider
     </b-form-checkbox>
-    <b-input-group size="lg" v-if="useCustom" prepend="Mock Server" class="mt-3">
-        <b-form-input v-model="apiUrl"  required placeholder="Enter Mock Server URL"></b-form-input>
+    <b-input-group size="md" v-if="useCustom" prepend="Mock Server" class="mt-3">
+        <b-form-input v-model=apiUrl  required placeholder="Enter Mock Server URL"></b-form-input>
         <b-input-group-append>
-        <b-button variant="success" >
-            <span v-if="!submitted" @click=testServer> Test </span>
+        <b-button :disabled="!isUrl(apiUrl)" variant="success" >
+            <span v-if="!submitted" @click=testServer(apiUrl)> Test </span>
             <b-icon v-if="submitted" icon="arrow-clockwise" animation="spin" font-scale="1"></b-icon>
         </b-button>
-        <b-button variant="primary" @click=save>
+        <b-button :disabled="!isUrl(apiUrl)"  variant="primary" @click=save>
             <b-icon icon="download" variant="light"></b-icon>
         </b-button>
         </b-input-group-append>
@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import mock from '../Api/server';
+import Mock from '../Api/server';
 
 export default {
     name: "server",
@@ -49,7 +49,8 @@ export default {
             try { return Boolean(new URL(url)); }
             catch(e){ return false; }
         },
-        async testServer() {
+        async testServer(url) {
+            const mock = new Mock()
             try {
                 this.submitted = true;
                 const contents = [{
@@ -60,7 +61,7 @@ export default {
                     "key":"Test001",
                     "headers":[]
                 }];
-                mock.update_default_endpoint(this.apiUrl);
+                mock.update_default_endpoint(url);
                 await mock.callAll(contents);
                 this.$bvToast.toast(`Test successful`, 
                 {
@@ -70,15 +71,17 @@ export default {
                     toaster: 'b-toaster-bottom-full',
                 });
                 this.submitted = false;
+                mock.override = false;
             } catch (e) {
-                this.$bvToast.toast(`Test failed on ${this.apiUrl}, Please check the network call in your browser and consult with administrator`, 
+                this.$bvToast.toast(`Test failed on ${url}, Please check the network call in your browser and consult with administrator`, 
                 {
                     title: 'Mock server configuration',
                     variant: 'danger',
                     autoHideDelay: "5000",
                     toaster: 'b-toaster-bottom-full',
                 });
-                this.submitted = false
+                this.submitted = false;
+                mock.override = false;
             }
         },
         async changeToServerConfig(status) {

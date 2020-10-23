@@ -36,7 +36,7 @@
     <div class="app-info">
         <div>
             <strong>
-               <a href="https://swava.io" target="_blank"> SwaVan.io </a>
+               <a href="https://swavan.io" target="_blank"> SwaVan.io </a>
             </strong>
             <div></div>
             <strong>
@@ -48,13 +48,13 @@
         SwaVan allow you to mock data and forward XHR request to another endpoint.
     </div>
     <div class="me">
-        You can find me <a target="blank" href="https://www.linkedin.com/in/biplabpokhrel007/">biplabpokhrel007</a> and
-        <a target="blank" href="https://twitter.com/BiplabPokhrel2">BiplabPokhrel2</a>
+        You can find me <a target="_blank" href="https://www.linkedin.com/in/biplabpokhrel007/">biplabpokhrel007</a> and
+        <a target="_blank" href="https://twitter.com/BiplabPokhrel2">BiplabPokhrel2</a>
     </div>
 
     <div class="thanks">
-        Special Thanks to <a href="https://twitter.com/julien_lafont" target="blank">julien_lafont</a>
-        for allowing us to use <a href="https://designer.mocky.io" target="blank">https://designer.mocky.io</a> to mock the data.
+        Special Thanks to <a href="https://twitter.com/julien_lafont" target="_blank">julien_lafont</a>
+        for allowing us to use <a href="https://designer.mocky.io" target="_blank">https://designer.mocky.io</a> to mock the data.
     </div>
 </div>
 </template>
@@ -65,6 +65,7 @@ export default {
         try {
             this.$store.dispatch('loadAppInfo');
         } catch {
+            // eslint-disable-next-line
             console.info('Unable to access extension info')
         }
     },

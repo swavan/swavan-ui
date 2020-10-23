@@ -2,35 +2,39 @@
 <div>
     <b-modal :static="true" :lazy="true" size="xl" id="modal-paste-rule" scrollable header-text-variant="light" header-bg-variant="dark"
     header-close-variant="danger" hide-footer v-model="showPasteModal" title="Paste Rule">
-    <b-form-textarea
-        class="mock-editor"
-        id="mock-data"
-        :required=true
-        v-model="raw"
-        :state="raw.length >= 1"
-        placeholder="Enter mock data here"
-        rows="5">
-    </b-form-textarea>
-    <div class="custom-action">
-        <b-button @click="createRule" :disabled=!raw.length variant="primary">
-            <b-icon v-if="!isSaving" variant="light" icon="download"></b-icon>
-            <b-spinner v-if="isSaving" small label="Saving..."></b-spinner>
-        </b-button>
-    </div>
+        <b-form-textarea
+            class="mock-editor"
+            id="mock-data"
+            :required=true
+            v-model="raw"
+            :state="raw.length >= 1"
+            placeholder="Enter mock data here"
+            rows="5">
+        </b-form-textarea>
+        <div class="custom-action">
+            <b-button @click="createRule" :disabled=!raw.length variant="primary">
+                <b-icon v-if="!isSaving" variant="light" icon="download"></b-icon>
+                <b-spinner v-if="isSaving" small label="Saving..."></b-spinner>
+            </b-button>
+        </div>
     </b-modal>
     <div style="padding: 0px 10px">
         <!-- Search Box -->
             <b-card border-variant="light">
                 <div class="search-container">
-                    <b-form-input list="my-list-id" v-model="search" v-on:keyup.enter="searchRules"
+                    <b-form-input 
+                        list="my-list-id"
+                        v-model="search"
+                        :readonly="rules.length < 1"
+                        v-on:keyup.enter="searchRules"
                         placeholder="Search Rules">
                     </b-form-input>
                     <b-button-group>
-                    <b-button @click="updateStatusInModal('add')" v-b-tooltip.hover title="Add New Rule"
+                    <b-button @click="updateStatusInModal('add')" title="Add New Rule"
                         variant="light">
                         <b-icon scale="1.5" variant="primary" icon="file-plus-fill"></b-icon>
                     </b-button>
-                    <b-button scale="0.5" @click="createOnPaste()" v-b-tooltip.hover title="Paste and Create Rule"
+                    <b-button scale="0.5" @click="createOnPaste()" title="Paste and Create Rule"
                         variant="light">
                         <b-icon variant="primary" icon="file-earmark"></b-icon>
                     </b-button>
@@ -38,66 +42,80 @@
                 </div>
             </b-card>
 
-        <!-- Add new rules  -->
-        <div v-if="rules.length > 0" class="add-new">
-        </div>
-
         <b-modal :static="true" :lazy="true" v-b-modal.modal-xl size="xl" id="modal-edit-rule" scrollable header-text-variant="light" header-bg-variant="dark"
             header-close-variant="danger" hide-footer v-model="modalShow" :title=modelHeaderText>
             <NewRules :rule=selected_rule v-on:saved=refreshRule
                 v-on:close="()=> modalShow = false"  />
         </b-modal>
 
-
-        <div v-if="rules.length < 1" class="no-rule-found">
-            No rules found
-        </div>
         <!-- List of rules -->
         <b-table
+            show-empty
             :sticky-header="tableHeight"
-            v-if="rules.length > 0"
             :items="rules"
-            :sort-by.sync="sortBy"
             head-variant="light"
             headVariant=dark
-            tableVariant=dark :fields="fields">
+            :sort-by.sync="sortBy"
+            :sort-desc.sync="sortDesc"
+            :sort-direction="sortDirection"
+            tableVariant=dark
+            :sort-null-last=true
+            :fields="fields">
             
             <template v-slot:cell(is_enabled)="data">
-                <b-form-checkbox switch v-model="data.item.is_enabled" style="text-align: right"
-                    @change="toggleStatus(data.item, $event)" size="lg">
+                <b-form-checkbox
+                    switch v-model="data.item.is_enabled"
+                    style="text-align: right"
+                    @change="toggleStatus({id:data.item.id, is_enabled: $event})"
+                    size="lg">
                 </b-form-checkbox>
             </template>
 
             <!-- Title and Descriptions -->
-            <!-- Is enabled -->
-            <template v-slot:cell(#)="data">
+            <!-- Is favorite -->
+            <template v-slot:cell(is_favorite)="data">
                 <div style="width: 20px">
-                <b-dropdown size="sm" right no-caret variant="link">
-                    <template v-slot:button-content>
-                        <b-icon icon="three-dots-vertical"></b-icon>
-                    </template>
-                    
-                    <b-dropdown-item variant="dark" size="sm"   @click="updateStatusInModal('edit', data.item)" >
-                        <b-icon class="editor" icon="pencil" variant="primary" aria-hidden="true">
-                        </b-icon>
-                        <span> Edit </span>
-                    </b-dropdown-item>
-                    <b-dropdown-divider></b-dropdown-divider>
-                    <b-dropdown-item variant="dark"  @click="deleteRule(data.item)" size="sm" >
-                        <b-icon class="editor" icon="trash" variant="primary" aria-hidden="true"></b-icon>
-                        <span> Delete </span>
-                    </b-dropdown-item>
-                    <b-dropdown-divider></b-dropdown-divider>
-                    <b-dropdown-item variant="dark"  @click="copy(data.item, 'b-toaster-bottom-center', false)" size="sm" >
-                        <b-icon class="editor" icon="files" variant="primary" aria-hidden="true"></b-icon>
-                        <span> Copy Rule </span>
-                    </b-dropdown-item>
-                </b-dropdown>
+                    <b-dropdown size="sm" right no-caret variant="link">
+                        <template v-slot:button-content>
+                            <b-icon icon="three-dots-vertical"></b-icon>
+                        </template>
+                        
+                        <b-dropdown-item variant="dark" size="sm" @click="updateStatusInModal('edit', data.item)" >
+                            <b-icon class="editor" icon="pencil" variant="primary" aria-hidden="true">
+                            </b-icon>
+                            <span> Edit </span>
+                        </b-dropdown-item>
+                        <b-dropdown-divider></b-dropdown-divider>
+                        <b-dropdown-item
+                            variant="dark"
+                            :disabled="data.item.is_favorite"
+                            @click="deleteRule(data.item)"
+                            size="sm" >
+                            <b-icon class="editor" icon="trash" variant="primary" aria-hidden="true"></b-icon>
+                            <span> Delete </span>
+                        </b-dropdown-item>
+                        <b-dropdown-divider></b-dropdown-divider>
+                        <b-dropdown-item variant="dark"  @click="copy(data.item, 'b-toaster-bottom-center', false)" size="sm" >
+                            <b-icon class="editor" icon="files" variant="primary" aria-hidden="true"></b-icon>
+                            <span> Copy Rule </span>
+                        </b-dropdown-item>
+                        <b-dropdown-divider></b-dropdown-divider>
+                        <b-dropdown-item-button text title="Favorites">
+                            <b-form-checkbox
+                                variant="light"
+                                v-model="data.item.is_favorite"
+                                @change="toggleStatus({id:data.item.id, is_favorite: $event })"
+                                >
+                                <span> Favorite </span>
+                            </b-form-checkbox>
+                        </b-dropdown-item-button>
+                    </b-dropdown>
                 </div>
             </template>
 
             <template v-slot:cell(name)="data">
                 <div style="text-align: left">
+                    <b-icon v-if="data.item.is_favorite" variant="success" scale="0.75" icon="heart-fill"></b-icon>
                     <strong v-b-tooltip :title=data.item.description v-on:dblclick="copy(data.item, 'b-toaster-bottom-center', false)">
                         {{ data.item.name }}
                     </strong>
@@ -168,6 +186,7 @@
 <script>
 import { v4 as uuidv4 } from 'uuid';
 import NewRules from '@/components/rule'
+
 export default {
     name: "Rules",
     mounted() {},
@@ -175,11 +194,13 @@ export default {
     data() {
         return {
             search : '',
-            sortBy: "name",
+            sortBy: "is_favorite",
+            sortDesc: false,
+            sortDirection: 'desc',
             fields : [
-                {key: "#", sortable: false},
-                {key: "name", sortable: true},
-                {key: "is_enabled", sortable: true}
+                { key: "is_favorite", label: '#', sortable: true, sortDirection: 'desc'},
+                { key: "name", label: 'Rule Name', sortable: true},
+                { key: "is_enabled", label: 'Status', sortable: false}
             ],
             modelHeaderText: 'Add new rule',
             selected_rule: {},
@@ -187,22 +208,25 @@ export default {
             modalShow: false,
             showPasteModal: false,
             isSaving: false,
-            raw: ''
+            raw: '',
         }
     },
-
     methods: {
         async load () { this.$store.dispatch("getRules", this.search) },
         async searchRules() { await this.load() },
         async copy(data, toaster, append = false) {
-            const rule = this.$store.getters.rule(data.id)
-            rule.responses.forEach((row) => {
+            const _rule = JSON.parse(JSON.stringify(
+                this.$store.getters.rule(data.id)
+            ));
+            delete _rule['id'];
+            _rule.name = `Copied ${_rule.name}`;
+            _rule.responses.forEach((row) => {
                 if (row.data) {
                     row.data['key'] = uuidv4();
                     row.data['action_perform'] = 'c';
                 }
             })
-            const stringified_rule = JSON.stringify(rule)
+            const stringified_rule = JSON.stringify(_rule)
             await navigator.clipboard.writeText(stringified_rule);
             this.notifier(`!!! Copied`, `${data.name} rule copied`, "primary", append)
         },
@@ -218,9 +242,8 @@ export default {
         sendMessage(message = {}) {
             browser.runtime.sendMessage(message)
         },
-        async toggleStatus(rule, is_enabled) {
-            rule.is_enabled = is_enabled;
-            await this.$store.dispatch("changeRuleStatus", rule)
+        async toggleStatus(payload) {
+            await this.$store.dispatch("toggleStatus", payload)
             this.sendMessage({ "action": "reload" })
         },
         async createOnPaste() {
@@ -265,8 +288,11 @@ export default {
     },
     async created () { await this.$store.dispatch("getRules", this.search) },
     computed: {
-        rules() { return this.$store.getters.rules },
-
+        rules() {
+            return this.$store
+            .getters
+            .rules
+        },
         tableHeight() {
             const searchURL = '/swavan-rules'
             var url = browser.runtime.getURL(searchURL);

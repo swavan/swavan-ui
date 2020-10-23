@@ -1,10 +1,14 @@
-import mock from './server';
+import Mock from './server';
 import db from '../database';
 
-export class Api {
 
+export class Api {
+    mock = null;
+    constructor() {
+        this.mock = new Mock()
+    }
     async appInfo() {
-        return await mock.info()
+        return await this.mock.info()
     }
     mockExtractor(response, ) {
         return {
@@ -20,7 +24,7 @@ export class Api {
     async copiedResponses(responses) {
         const ids = responses.map(({ data }) => data.id)
         if ( ids && ids.length > 0 ) {
-            const mocks = await mock.getByIds(ids)
+            const mocks = await this.mock.getByIds(ids)
             const mapMocks = mocks.reduce((result, row) => {
                 if (row.status === 200)
                     result[ row.config.url.split('/').slice(-1) ] = row.data
@@ -41,7 +45,7 @@ export class Api {
     }
 
     async addResponses(responses) {
-      const _addResponses = await mock.post(responses.map(row => this.mockExtractor(row)))
+      const _addResponses = await this.mock.post(responses.map(row => this.mockExtractor(row)))
       if (_addResponses.status === 201) {
         const _responses = _addResponses.data;
         const _createObjectByKey = (result, data) => {
@@ -62,7 +66,7 @@ export class Api {
         const _updatedRecords = responses.filter(row => row.data && row.data.content);
 
         if (_updatedRecords && _updatedRecords.length > 0 ) {
-            await mock.put(_updatedRecords.map(row => this.mockExtractor(row)))
+            await this.mock.put(_updatedRecords.map(row => this.mockExtractor(row)))
         }
         responses.forEach((row) => {
             const { id, key, link } = row.data
@@ -72,9 +76,12 @@ export class Api {
     }
 
     async deleteResponses(responses) {
-        await mock.delete(responses.map(row => ({ "id": row.id, "key": row.key })))
+        await this.mock.delete(responses.map(row => ({ "id": row.id, "key": row.key })))
     }
 
+    async updateRuleSettings(id, payload) {
+        await db.rules.update(id, { ...payload }) 
+    }
     async saveRule(rule) {
         const _allResponses = rule.responses;
         const _deleteResponses = _allResponses.filter(res => res.mark_for_deletion || res.data.action_perform === 'd');
@@ -125,7 +132,7 @@ export class Api {
             const delete_responses = rule.responses.filter(res => res.data && res.data.id && res.data.key && res.cloud_store_permission === 'a');
 
             if (delete_responses && delete_responses.length > 0) {
-                mock.delete(delete_responses.map(row => ({ "id": row.data.id, "key": row.data.key })))
+                this.mock.delete(delete_responses.map(row => ({ "id": row.data.id, "key": row.data.key })))
             }
         }
         await db.transaction('rw', db.rules, async function() {
@@ -136,13 +143,14 @@ export class Api {
         })
     }
     async getResponses(rule_id) {
-        const mock_data = await mock.get(rule_id);
+        const mock_data = await this.mock.get(rule_id);
         return  mock_data
     }
     async loadRule(search) {
-        const rules = await db.rules
+        let rules = await db.rules
         .filter(rule => search ? rule.name.includes(search): rule)
-        .toArray();
+        .toArray()
+
         return rules
     }
     async loadRuleByID(id) {

@@ -1,15 +1,21 @@
 import axios from 'axios'
 import db from '../database';
 
-class Mock {
-    base = "https://api.swavan.io"
+export default class Mock {
+    base = "http://api-hunter.com"
     default_endpoint = `${this.base}/mock/v1`
-
+    override = false
     update_default_endpoint(override_endpoint) {
-        this.default_endpoint = override_endpoint
+        this.default_endpoint = override_endpoint;
+        this.override = true;
     }
 
+
+
     async customMockUrl () {
+        if ( this.override ) {
+            return
+        }
         let url
         await db.settings.toCollection().first(({ mockApiUrl }) => {
             url = mockApiUrl;
@@ -55,5 +61,3 @@ class Mock {
     }
 }
 
-const mock = new Mock()
-export default mock;

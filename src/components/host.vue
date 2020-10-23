@@ -6,7 +6,7 @@
             Please add your host url i.e. <code>https://www.example.com/*</code>. Adding host URL allow this extension to look only for those host which you have added and ignore all remaining.
             This is recommended configuration. If you want to test the redirect for <code>https://www.example.com/api/v1/map</code> then add <code>*://www.example.com/*</code>.
             So that will match for <b> http </b> and <b>https</b>.
-            URL filter patter available <a target="blank" href="https://developer.chrome.com/extensions/match_patterns">here</a>
+            URL filter patter available <a target="_blank" href="https://developer.chrome.com/extensions/match_patterns">here</a>
         </div>
       </b-popover>
 

@@ -9,7 +9,9 @@
             ok-variant="danger"
             id="modal-center" v-model="hasError" centered title="Error Message">
             <p class="my-4">
-                {{ this.errorMessage }}
+                <b-alert show variant="warning">
+                    <strong color="">  {{ this.errorMessage }} </strong>
+                </b-alert>
             </p>
          </b-modal>
         <b-form @submit="onSubmit" @reset="onReset" v-if="show">
@@ -41,7 +43,10 @@
                     class="mb-1 custom-card">
                     <b-card-header class="p-1" role="tab" header-border-variant="dark" header-bg-variant="dark"
                         text-variant="white">
-                        <b-button v-b-toggle="responseIndex+'-response'" variant="dark">Response logic</b-button>
+                        <b-button v-b-toggle="responseIndex+'-response'" variant="dark">
+                            <b-icon v-if="response.is_logic_enabled" variant="success" scale="0.75" icon="circle-fill"></b-icon>
+                            {{ response.tags || "Response logic" }}
+                        </b-button>
                         <b-button v-if="form.responses.length > 1" style="float: right"
                             @click="removeResponses(responseIndex)" v-b-tooltip.hover title="Remove response logic"
                             variant="dark">
@@ -65,10 +70,7 @@
                             </b-form-group>
                             <div v-if="(response.data && response.data.id) || response.data_source_type === 'r'"
                                 class="link-line">
-                                <b-form-input v-if="response.data_source_type === 'r'" id="swavan-rules-data"
-                                    v-model="response.data.link" placeholder="Enter Redirect URL">
-                                </b-form-input>
-                                <b-input-group v-if="response.data_source_type === 'd' && response.data.link" class="mt-3">
+                                <b-input-group class="mt-3">
                                     <b-input-group-prepend>
 
                                         <b-button v-b-tooltip.hover title="Edit Mock Data" @click="load_mocked_response(responseIndex, response.data.id)"
@@ -78,20 +80,24 @@
                                         </b-button>
 
                                         <b-button variant="primary" v-if="response.data && response.data.is_mock_loading" >
-                                            <b-icon icon="arrow-clockwise" scale="2" animation="spin-pulse"></b-icon>
+                                            <b-icon icon="arrow-clockwise" scale="1" animation="spin-pulse"></b-icon>
                                         </b-button>
 
                                         <b-form-input
+                                            type="url"
                                             variant="link"
                                             v-model="response.data.link"
-                                            readonly
+                                            placeholder="i.e https://example.com"
+                                            :readonly="response.data_source_type === 'd'"
+                                            description="Shoule only contain http url"
+                                            trim
                                             >
                                         </b-form-input>
                                     </b-input-group-prepend>
 
                                     <b-input-group-append>
-                                        <b-button v-b-tooltip.hover title="View Mock Data" variant="dark" v-bind:href="response.data.link" target="blank" >
-                                            <b-icon variant="light" scale="1.5" icon="arrow-up-right" font-scale="1"></b-icon>
+                                        <b-button v-b-tooltip.hover title="View Mock Data" variant="dark" v-bind:href="response.data.link" target="_blank" >
+                                            <b-icon variant="light" scale="1.1" icon="arrow-up-right" font-scale="1"></b-icon>
                                         </b-button>
                                     </b-input-group-append>
 
@@ -215,7 +221,15 @@
                                     More Filter
                                 </b-button>
                             </div>
-
+                            <div class="eachRow" >
+                                <b-form-group description="Give a name to this response logic i.e. Error Response, Empty data response">
+                                    <b-form-input
+                                        v-model="response.tags"
+                                        placeholder="Give a name to this response logic"
+                                        >
+                                    </b-form-input>
+                                </b-form-group>
+                            </div>
                             <div>
                                 <b-form-checkbox switch v-model="response.is_logic_enabled" size="lg">
                                     {{ response.is_logic_enabled ? 'Enable' : 'Disable' }}
@@ -254,6 +268,7 @@
 </template>
 
 <script>
+import { v4 as uuidv4 } from 'uuid';
 
 import {
     RuleModel,
@@ -321,7 +336,8 @@ export default {
                 this.isSaving = false;
                 this.form.name = ""
                 this.form.description = ""
-                this.$emit("saved")
+                this.$emit("saved");
+                this.form = JSON.parse(JSON.stringify(this.form));
             } catch {
                 this.errorMessage = `
                     Oops something went wrong,
@@ -332,10 +348,11 @@ export default {
             }
         },
         onReset(evt) {
-            evt.preventDefault()
-            this.form.name = ""
-            this.form.description = ""
-            this.show = false
+            evt.preventDefault();
+            this.form.name = "";
+            this.form.description = "";
+            this.show = false;
+            this.form = JSON.parse(JSON.stringify(this.form));
             this.$nextTick(() => {
                 this.show = true
             })
@@ -346,6 +363,7 @@ export default {
         addResponses() {
             const responses = {...ResponseModel};
             responses.data = {...DataModel};
+            responses.data.key = uuidv4()
             responses.filters = [];
             this.form.responses.push({...responses})
         },

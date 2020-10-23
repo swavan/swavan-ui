@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import db from '../database';
+// import db from '../database';
 import api from '../Api';
 
 import { Browser } from '../utils';
@@ -58,8 +58,8 @@ export default new Vuex.Store({
       const _rules = await api.loadRule(search);
       state.commit('setRules', _rules)
     },
-    async changeRuleStatus(state, changePayload) {
-      await db.rules.update(changePayload.id, { is_enabled: changePayload.is_enabled })
+    async toggleStatus(state, changePayload) {
+      await api.updateRuleSettings(changePayload.id, changePayload)
     },
     async updateRules(state, payload) {
       await api.saveRule({...payload})
