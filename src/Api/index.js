@@ -7,9 +7,6 @@ export class Api {
     constructor() {
         this.mock = new Mock()
     }
-    async appInfo() {
-        return await this.mock.info()
-    }
     mockExtractor(response, ) {
         return {
             id: response.data.id,
@@ -76,7 +73,7 @@ export class Api {
     }
 
     async deleteResponses(responses) {
-        await this.mock.delete(responses.map(row => ({ "id": row.id, "key": row.key })))
+        await this.mock.delete(responses.map(row => ({ "id": row.data.id, "key": row.data.key })))
     }
 
     async updateRuleSettings(id, payload) {
@@ -148,7 +145,7 @@ export class Api {
     }
     async loadRule(search) {
         let rules = await db.rules
-        .filter(rule => search ? rule.name.includes(search): rule)
+        .filter(rule => search ? rule.name.toLowerCase().includes(search.toLowerCase()): rule)
         .toArray()
 
         return rules

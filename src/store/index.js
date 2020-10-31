@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-// import db from '../database';
 import api from '../Api';
 
 import { Browser } from '../utils';
@@ -20,9 +19,6 @@ export default new Vuex.Store({
     setTypes(state, payload) {
       state.requestTypes = payload
     },
-    setAppInfo(state, payload) {
-      state.appData = payload
-    },
     setHostUrl(state, payload) {
       state.urls = payload
     },
@@ -38,10 +34,6 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    async loadAppInfo(state) {
-      const payload = await api.appInfo()
-      state.commit('setAppInfo', payload.data)
-    },
     async getResponseByID(state, rule_id) {
       return await api.getResponses(rule_id)
     },    
@@ -114,10 +106,7 @@ export default new Vuex.Store({
       return Object.keys(state.settings).length > 0 ? state.settings.reload : false
     },
     settings: (state) => () => {
-      return Object.keys(state.settings).length > 0 ? state.settings : { isEnabled: true,  reload: false }
-    },
-    info: (state) => {
-      return state.appData
+      return Object.keys(state.settings).length > 0 ? state.settings : { isEnabled: true,  reload: false, mockApiUrl: "" }
     },
     requestTypes: (state) => {
       return state.requestTypes;

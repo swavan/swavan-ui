@@ -9,17 +9,19 @@ export default class Mock {
         this.default_endpoint = override_endpoint;
         this.override = true;
     }
-
-
-
     async customMockUrl () {
         if ( this.override ) {
             return
         }
-        let url
-        await db.settings.toCollection().first(({ mockApiUrl }) => {
-            url = mockApiUrl;
-        })
+        let url = "";
+        try {
+            await db.settings.toCollection().first(({ mockApiUrl }) => {
+                url = mockApiUrl;
+            })
+        } catch {
+            console.info("Using default Mock provider")
+        }
+
         return url
     }
     async post(payload) {
@@ -45,11 +47,6 @@ export default class Mock {
     async getByIds(ids) {
         const _apis = ids.map((id) => this.get(id))
        return await axios.all(_apis)
-    }
-
-    async info() {
-        const _info = await axios.get(`${this.base}/info`)
-        return _info
     }
 
     async callAll(contents) {

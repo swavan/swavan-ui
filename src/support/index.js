@@ -149,7 +149,7 @@ export const BackGroundSupport = {
   },
   updateSetting: async() => {
     await store.dispatch("loadSetting");
-    this.data.isReloadActive = store.getters.isReloadActive()
+    BackGroundSupport.data.isReloadActive = store.getters.isReloadActive()
   },
   isReloadActive: () => store.getters.isReloadActive(),
   refresh: async () => {
