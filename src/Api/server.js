@@ -19,7 +19,7 @@ export default class Mock {
                 url = mockApiUrl;
             })
         } catch {
-            console.info("Using default Mock provider")
+            return url
         }
 
         return url
