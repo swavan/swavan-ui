@@ -1,10 +1,6 @@
 import store from '../store';
 import { HTTP_METHODS, MAPPED_HTTP_METHODS, MAPPED_FILTER_BY, MAPPED_OPERATOR, BROWSERS } from '../models';
 
-const generateDataUrl = (dt) => {
-  return `data://application/json,${JSON.stringify(dt)}`
-}
-
 export const BackGroundSupport = {
   data: {
     beforeRequestOptions: ['blocking', 'requestBody'],
@@ -46,7 +42,6 @@ export const BackGroundSupport = {
     if ( method.toLowerCase() === HTTP_METHODS.OPTION )
       return
      const urlParams = new URLSearchParams(`?${url.split(/\?(.+)/)[1]}`);
-  
      const _rule = store.getters.activeRules.find((row) => {
        switch(row.operator) {
          case MAPPED_OPERATOR.CONTAINS: { return url.includes(row.source) }
@@ -56,7 +51,7 @@ export const BackGroundSupport = {
          case MAPPED_OPERATOR.SUFFIX: { return url.endsWith(row.source) }
        }  
      })
-   
+    
      if (_rule) {
        let _body = Object
        if (requestBody) {
@@ -66,11 +61,9 @@ export const BackGroundSupport = {
            return
          }
        }
-       const responses = _rule.responses.filter(row => row.is_logic_enabled)
-       
-       for (const response of responses) {
+       for (const response of _rule.responses) {
            
-           const { data, http_method, data_source_type, filters, cloud_store_permission } = response;
+           const { http_method, filters } = response;
            
            if (( http_method === 'al') || (method.toLowerCase() === MAPPED_HTTP_METHODS[http_method]) ) {
              const _filters = filters.filter(({ is_active }) => is_active)
@@ -89,16 +82,30 @@ export const BackGroundSupport = {
                  }
                })
                if (matched){
-                  return { redirectUrl: data_source_type === 'd' && cloud_store_permission !== 'a' ? generateDataUrl(data.content) : data.link}
+                return BackGroundSupport.pageAction(response)
               }
                else {
                 continue
               }
              }
-            return { redirectUrl: data_source_type === 'd' && cloud_store_permission !== 'a' ? generateDataUrl(data.content) : data.link }
+            return BackGroundSupport.pageAction(response)
            }
        }
      }
+  },
+  pageAction: ({ data, data_source_type, cloud_store_permission }) => {
+    if(data_source_type === 'b') {
+      return { cancel: true };
+    }
+    if(data_source_type === 'd' && cloud_store_permission !== 'a') {
+      return {redirectUrl: `data://application/json,${JSON.stringify(data.content)}` }
+    }
+    if(data_source_type === 'd') {
+      return {redirectUrl: data.link }
+    }
+    if(data_source_type === 'r') {
+      return {redirectUrl: data.link }
+    }
   },
   deleteListeners: () => {
     browser.webRequest.onBeforeRequest.removeListener(BackGroundSupport.handleRequest);

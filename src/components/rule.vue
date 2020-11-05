@@ -68,6 +68,8 @@
               >
               </b-form-input>
             </div>
+
+            <!-- Response logic -->
             <div
               class="eachRow"
               v-for="(response, responseIndex) in form.responses"
@@ -90,6 +92,8 @@
                   <b-button
                     v-b-toggle="responseIndex + '-response'"
                     variant="dark"
+                    :title="getActionName(response).text"
+                    v-b-tooltip.hover
                   >
                     <b-icon
                       v-if="response.is_logic_enabled"
@@ -97,14 +101,14 @@
                       scale="0.75"
                       icon="circle-fill"
                     ></b-icon>
-                    {{ response.tags || "Response logic" }}
+                    {{ response.tags  ||  getActionName(response).text }}
                   </b-button>
                   <b-button
                     v-if="responseDeletionAllowed"
                     style="float: right"
                     @click="removeResponses(responseIndex)"
                     v-b-tooltip.hover
-                    title="Remove response logic"
+                    :title="'Remove '+getActionName(response).text+' logic'"
                     variant="dark"
                   >
                     <b-icon icon="trash" scale="1" variant="danger"></b-icon>
@@ -137,8 +141,9 @@
                   role="tabpanel"
                 >
                   <b-card-body>
+                    <!-- Response body -->
                     <b-form-group
-                      description="Data source i.e. Redirect to another endpoint or mock data here"
+                      description="Select action i.e. Redirect,  mock data or block the request"
                     >
                       <b-form-select
                         :disabled="
@@ -152,6 +157,7 @@
                         required
                       ></b-form-select>
                     </b-form-group>
+                    <!-- Response conditional body  -->
                     <div
                       v-if="
                         (response.data && response.data.id) ||
@@ -188,9 +194,7 @@
 
                           <b-button
                             variant="primary"
-                            v-if="
-                              response.data && response.data.is_mock_loading
-                            "
+                            v-if="response.data && response.data.is_mock_loading"
                           >
                             <b-icon
                               icon="arrow-clockwise"
@@ -215,7 +219,7 @@
                             v-b-tooltip.hover
                             title="View Mock Data"
                             variant="dark"
-                            v-bind:href="response.data.link"
+                            @click=makeRedirectLink(response)
                             target="_blank"
                           >
                             <b-icon
@@ -228,7 +232,6 @@
                         </b-input-group-append>
                       </b-input-group>
                     </div>
-
                     <div
                       class="custom-tab-view"
                       v-if="
@@ -379,7 +382,7 @@
                       </b-tabs>
                     </div>
                     <b-form-group
-                      description="Use this response logic for given HTTP method"
+                      :description="'Apply '+getActionName(response).text+' logic in '+ getMethodName(response).text +' method'"
                     >
                       <b-form-select
                         id="input-source-http-method"
@@ -484,35 +487,48 @@
                         More Filter
                       </b-button>
                     </div>
-                    <div class="eachRow">
+                    <div>
                       <b-form-group
-                        description="Give a name to this response logic i.e. Error Response, Empty data response"
+                        :description="'Give a name to '+getActionName(response).text+''"
                       >
                         <b-form-input
                           v-model="response.tags"
-                          placeholder="Give a name to this response logic"
+                          :placeholder="'Give a name to this '+getActionName(response).text+' logic'"
                         >
                         </b-form-input>
                       </b-form-group>
                     </div>
+                    <div v-if="response.data_source_type === 'd'" class="eachRow">
+                        <b-input-group prepend="Delay ( Per Sec )" >
+                        <b-input v-model="response.delay" type="number" placeholder="Add response delay duration"></b-input>
+                        <b-input-group-append text>
+                            <b-input-group-text>
+                                Max=60sec
+                            </b-input-group-text>
+                        </b-input-group-append>
+                        </b-input-group>
+                    </div>
                     <div>
                       <b-form-checkbox
                         switch
+                        class="mb-1"
                         v-model="response.is_logic_enabled"
-                        size="lg"
+                        size="md"
                       >
-                        {{ response.is_logic_enabled ? "Enable" : "Disable" }}
+                      {{ getActionName(response).text }}  {{ response.is_logic_enabled ? " is Enable" : "is Disable" }}
                       </b-form-checkbox>
                     </div>
                   </b-card-body>
                 </b-collapse>
               </b-card>
             </div>
+
+            <!-- Add response logic button -->
             <div class="eachRow">
               <b-button
                 @click="addResponses()"
                 v-b-tooltip.hover
-                title="Add more response logic"
+                title="Add more request/response logic"
                 variant="dark"
               >
                 <b-icon
@@ -520,10 +536,12 @@
                   scale="1"
                   variant="light"
                 ></b-icon>
-                Add Response
+                Add Request/Response logic
               </b-button>
             </div>
-            <div class="eachRow">
+
+
+            <div>
               <b-form-checkbox v-model="form.is_enabled">
                 <span v-if="isCreateRule"> Activate rule on create </span>
                 <span v-if="!isCreateRule">
@@ -638,6 +656,19 @@ export default {
     };
   },
   methods: {
+    getMethodName(response) {
+      return HTTP_METHODS_OPTIONS.find(row => row.value === response.http_method)||{ text: 'ALL' }
+    },   
+    getActionName(response) {
+      return DATA_SOURCE_TYPES_OPTION.find(row => row.value === response.data_source_type)||{ text: 'action' }
+    },
+    makeRedirectLink(response) {
+      let url = response.data.link;
+      if(response.data_source_type === 'd' && response.delay > 0)
+        url = `${response.data.link}?mocky-delay=${response.delay}s`;
+      const win = window.open(url, '_blank');
+      win.focus();
+    },
     updateForm(rule) {
       for (const key of Object.keys(rule)) {
         if (key === "responses") {
@@ -719,6 +750,10 @@ export default {
     },
     removeResponses(responseIndex) {
       if (this.responseDeletionAllowed) {
+        if(this.form.responses[responseIndex].data.action_perform === 'c') {
+            this.form.responses.splice(responseIndex, 1)
+            return
+        }
         this.$set(
           this.form.responses[responseIndex],
           "mark_for_deletion",

@@ -94,7 +94,12 @@ export default new Vuex.Store({
       return state.swavanRules
     },
     activeRules : (state) => {
-      return state.swavanRules.filter(row => row.is_enabled)
+      return state.swavanRules
+        .filter(row => row.is_enabled)
+        .map(_rule => {
+          _rule.responses = _rule.responses.filter((response) => response.is_logic_enabled)
+          return _rule
+        })
     },
     rule : (state) => (rule_id) => {
       return state.swavanRules.find(row => row.id === rule_id)

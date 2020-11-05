@@ -78,7 +78,8 @@ export const OPERATORS = [
 
 export const DATA_SOURCE_TYPES_OPTION = [
     {value: "r", text: 'Redirect'},
-    {value: "d", text: 'Mock Data'}
+    {value: "d", text: 'Mock Data'},
+    {value: "b", text: 'Block Request'},
 ];
 
 export const HTTP_METHODS_OPTIONS = [
@@ -117,6 +118,7 @@ export const ResponseModel = {
     is_logic_enabled: true,
     cloud_store_permission: 'a',
     tags: '',
+    delay: 0,
 }
 
 export const FilterModel = {
@@ -154,7 +156,7 @@ export const isValid = (_rule) => {
                 
                 const valid = _rule.responses
                     .filter(res => {
-                        if (res.mark_for_deletion)
+                        if (res.mark_for_deletion ||  res.data_source_type === 'b')
                             return true
                         else if (res.http_method && res.data && (res.data.link || res.data.content) ) {
                             const areValid = res.filters.every((_filter) => _filter.filter_by

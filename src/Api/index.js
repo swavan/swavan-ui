@@ -51,7 +51,7 @@ export class Api {
         }
         const _responsesDict = _responses.reduce(_createObjectByKey, {})
         const _returnableResponses = responses.map((row) => {
-            row.data = _responsesDict[row.data.key];
+            row.data = {...row.data, ..._responsesDict[row.data.key]};
             return row
         })
         return _returnableResponses
@@ -85,7 +85,7 @@ export class Api {
 
         const _responses = _allResponses.filter(res => !res.mark_for_deletion || (res.data && res.data.action_perform && res.data.action_perform !== 'd'));
         
-        const _redirectResponses = _responses.filter(res => res.data_source_type === 'r');
+        const _otherResponses = _responses.filter(res => res.data_source_type !== 'd');
         const _saveLocalResponses = _responses.filter(res => res.data_source_type === 'd' && res.cloud_store_permission !== 'a' );
         const mockResponses = _responses.filter(res => res.data_source_type === 'd' && res.cloud_store_permission === 'a');
         const _addResponses = mockResponses.filter(res => res.data.action_perform === 'a');
@@ -112,7 +112,7 @@ export class Api {
             await this.deleteResponses(_deleteResponses)
         }
 
-        rule.responses = [ ..._saveLocalResponses, ..._mockResponses,  ..._redirectResponses]
+        rule.responses = [ ..._saveLocalResponses, ..._mockResponses,  ..._otherResponses]
 
         await db.transaction('rw', db.rules, async function() {
             if(rule.id) {
@@ -171,7 +171,6 @@ export class Api {
         await db.transaction('rw', db.hostURLs, async function() {
             await db.hostURLs.add({url: url})
         })
-
     }
     async deleteHostURL(id) {
         await db.transaction('rw', db.hostURLs, async function() {
