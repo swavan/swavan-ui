@@ -138,7 +138,7 @@
                 >
                   <b-card-body>
                     <b-form-group
-                      description="Data source i.e. Redirect to another endpoint or mock data here"
+                      description="Data source i.e. Redirect to another endpoint, mock data or block"
                     >
                       <b-form-select
                         :disabled="
@@ -215,7 +215,7 @@
                             v-b-tooltip.hover
                             title="View Mock Data"
                             variant="dark"
-                            v-bind:href="response.data.link"
+                            @click=makeRedirectLink(response)
                             target="_blank"
                           >
                             <b-icon
@@ -486,13 +486,25 @@
                     </div>
                     <div class="eachRow">
                       <b-form-group
-                        description="Give a name to this response logic i.e. Error Response, Empty data response"
+                        description="Give a name to this response logic i.e. Error Response, Empty data response, block call"
                       >
                         <b-form-input
                           v-model="response.tags"
                           placeholder="Give a name to this response logic"
                         >
                         </b-form-input>
+                      </b-form-group>
+                    </div>
+                    <div v-if="response.data_source_type === 'd'" class="eachRow">
+                      <b-form-group description="Maximum allowed response delay is 60 sec">
+                        <b-input-group prepend="Delay" >
+                        <b-input v-model="response.delay" type="number" placeholder="Add response delay duration"></b-input>
+                        <b-input-group-append text>
+                            <b-input-group-text>
+                                sec
+                            </b-input-group-text>
+                        </b-input-group-append>
+                        </b-input-group>
                       </b-form-group>
                     </div>
                     <div>
@@ -638,6 +650,13 @@ export default {
     };
   },
   methods: {
+    makeRedirectLink(response) {
+      let url = response.data.link;
+      if(response.data_source_type === 'd' && response.delay > 0)
+        url = `${response.data.link}?mocky-delay=${response.delay}s`;
+      const win = window.open(url, '_blank');
+      win.focus();
+    },
     updateForm(rule) {
       for (const key of Object.keys(rule)) {
         if (key === "responses") {
@@ -719,6 +738,10 @@ export default {
     },
     removeResponses(responseIndex) {
       if (this.responseDeletionAllowed) {
+        if(this.form.responses[responseIndex].data.action_perform === 'c') {
+            this.form.responses.splice(responseIndex, 1)
+            return
+        }
         this.$set(
           this.form.responses[responseIndex],
           "mark_for_deletion",

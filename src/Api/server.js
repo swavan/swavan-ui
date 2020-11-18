@@ -2,7 +2,7 @@ import axios from 'axios'
 import db from '../database';
 
 export default class Mock {
-    base = "http://api-hunter.com"
+    base = "https://api-hunter.com"
     default_endpoint = `${this.base}/mock/v1`
     override = false
     update_default_endpoint(override_endpoint) {

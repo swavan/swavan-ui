@@ -73,7 +73,9 @@ export class Api {
     }
 
     async deleteResponses(responses) {
-        await this.mock.delete(responses.map(row => ({ "id": row.data.id, "key": row.data.key })))
+        if(responses.length > 0) {
+            await this.mock.delete(responses.map(row => ({ "id": row.data.id, "key": row.data.key })))
+        }
     }
 
     async updateRuleSettings(id, payload) {
@@ -81,11 +83,12 @@ export class Api {
     }
     async saveRule(rule) {
         const _allResponses = rule.responses;
-        const _deleteResponses = _allResponses.filter(res => res.mark_for_deletion || res.data.action_perform === 'd');
+        const _deleteResponses = _allResponses.filter(res => res.mark_for_deletion || (res.data && res.data.action_perform && res.data.action_perform == 'd'));
 
         const _responses = _allResponses.filter(res => !res.mark_for_deletion || (res.data && res.data.action_perform && res.data.action_perform !== 'd'));
         
         const _redirectResponses = _responses.filter(res => res.data_source_type === 'r');
+        const _blockResponses = _responses.filter(res => res.data_source_type === 'b');
         const _saveLocalResponses = _responses.filter(res => res.data_source_type === 'd' && res.cloud_store_permission !== 'a' );
         const mockResponses = _responses.filter(res => res.data_source_type === 'd' && res.cloud_store_permission === 'a');
         const _addResponses = mockResponses.filter(res => res.data.action_perform === 'a');
@@ -109,10 +112,10 @@ export class Api {
         }
 
         if(_deleteResponses  && _deleteResponses.length  > 0) {
-            await this.deleteResponses(_deleteResponses)
+            await this.deleteResponses(_deleteResponses.filter(res => res.data_source_type === 'd'))
         }
 
-        rule.responses = [ ..._saveLocalResponses, ..._mockResponses,  ..._redirectResponses]
+        rule.responses = [ ..._saveLocalResponses, ..._mockResponses,  ..._redirectResponses, ..._blockResponses]
 
         await db.transaction('rw', db.rules, async function() {
             if(rule.id) {
